@@ -1,0 +1,69 @@
+a:hover{
+    cursor:pointer;
+}
+h1{
+    font-stretch: condensed;
+}
+input, label, span, a, li{
+    font-size: .9em;
+}
+h2{
+    font-size: 1em;
+    font-weight: bold;
+    font-stretch: condensed;
+    border-bottom: 1px solid #565656;
+}
+.base{
+    background-image: url('../img/logoback.svg');
+    background-position: bottom;
+    background-repeat: no-repeat;
+}
+.datos{
+    border: 1px solid #565656;
+    word-wrap: break-word;
+}
+.margen{
+    margin-left: 4px;
+}
+.color{
+    background: linear-gradient(#ff8c00, #ffa500);
+}
+.ui-bar-a{ font-size: 1.6em; }
+.ui-body-g{ background-color: #676767; color: #eefeff; }
+.ui-body-o{ background-color: #cccccf; color: #242424;}
+.btn_new{
+    bottom: 4%;
+    border-radius: 70px 70px;
+    box-shadow: 6px 6px 2px #888888;
+    cursor:pointer;
+    height: 40px;
+    position: fixed;
+    right: 8%;
+    width: 42px;
+    z-index: 2;
+}
+
+.logo{
+    text-align: center;
+}
+.status {
+    bottom: 14%;
+    font-size: small;
+    left: 20%;
+    opacity: 0;
+    position: fixed;
+    width: 60%;
+    z-index: 2;
+}
+.msg {
+    text-align: center;
+}
+.rotulo{
+    font-size: .6em;
+    font-weight:lighter;
+}
+.red{
+    font-size: .9em;
+    font-style: italic;
+    font-weight: bolder;
+}

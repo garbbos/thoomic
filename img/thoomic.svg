@@ -1,0 +1,17 @@
+<svg viewBox="0 0 340 180" height="180" width="340" xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <title>Logo, Name and help for button in application</title>
+    <g stroke="#474747" stroke-width="3" fill="#ffdf4a">
+        <circle cx="50" cy="50" r="41"/>
+        <circle cx="50" cy="70" r="20"/>
+        <circle cx="50" cy="60" r="8"/>
+        <path d="M35 70 C 40 80, 60 80, 65 70" fill="none"/>
+        <line x1="54" y1="40" x2="75" y2="45"/>
+        <line x1="40" y1="40" x2="45" y2="40"/>
+        <path d="M85 5 C 45 5, 40 55, 95 35"/>
+        <line x1="85" y1="5" x2="95" y2="35"/>
+        <path d="M10 20 C 15 70, 50 65, 40 5"/>
+        <line x1="10" y1="20" x2="40" y2="5"/>
+        <text x="120" y="60" font-family="Trebuchet" font-size="44" stroke-width="2">Thoomic</text>
+        <text x="120" y="120" font-family="Trebuchet" font-size="44" stroke-width="2"> Invoices</text>
+    </g>
+</svg>
