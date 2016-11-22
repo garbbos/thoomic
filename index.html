@@ -5,10 +5,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="mobile-web-app-capable" content="yes">
+
+    <script type="text/javascript" src="libs/jquery.min.js"></script>
+    <script type="text/javascript" src="libs/jquery.mobile.min.js"></script>
     <link rel="stylesheet" type="text/css" href="libs/jquery.mobile-1.4.5.min.css">
     <link rel="stylesheet" type="text/css" href="libs/estilo.css">
-    <script type="text/javascript" src="libs/jquery.min.js" defer></script>
-    <script type="text/javascript" src="libs/jquery.mobile.min.js" defer></script>
     <script type="text/javascript" src="libs/app.js" defer></script>
     <script type="text/javascript" src="libs/openDB.js" defer></script>
     <script type="application/javascript" src="libs/FileSaver.min.js" defer></script>
@@ -101,7 +102,7 @@
               <h2 id="update">Complete Address</h2>
               <form id="form_update" name="formo_update">
                     <label id="lbldomicilio" for="domicilio">Address</label>
-                    <input class="myconf" id="domicilio" type="text" name="domicilio" placeholder="Address" autofocus>
+                    <input class="myconf" id="domicilio" type="text" name="domicilio" placeholder="Address">
                     <label id="lblcp" for="cp">Postal Code</label>
                     <input class="myconf" id="cp" type="text" name="cp" placeholder="Postal Code">
                     <label id="lblpoblacion" for="poblacion">City</label>
@@ -121,7 +122,7 @@
 
                 <form id="form_bill" name="formobill">
                     <label id="labelconcepto" for="concepto">Concept</label>
-                    <input id="concepto" type="text" name="concepto" placeholder="Concept..." autofocus>
+                    <input id="concepto" type="text" name="concepto" placeholder="Concept...">
                     <label for="cantidad">Items</label>
                     <input id="cantidad" type="number" name="cantidad" placeholder="Items">
                     <label for="precio">Price</label>
@@ -136,7 +137,6 @@
         <div data-role="popup" id="readfile" data-theme="o" data-overlay-theme="a" class="ui-content datos color">
             <div class="ui-content datos color">
                 <h2 id="titulofile">Import Database</h2>
-
                 <form id="formfile" name="formofile">
                     <input id="selectfile" type="file" class="color">
                 </form>
@@ -148,7 +148,7 @@
                 <h2 id="tituloPDF">Setup Invoice</h2>
                 <form id="formPDF" name="formoPDF">
                     <label id="lblcomments" for="comments">Due Date...</label>
-                    <input id="comments" type="text" name="comment" placeholder="Comments..." autofocus>
+                    <input id="comments" type="text" name="comment" placeholder="Comments...">
                     <label id="lbltax" for="tax">% Tax</label>
                     <input class="myconf" id="tax" type="number" name="tax" placeholder="% TAX">
                     <label id="lblsel" for="sel">Currency</label>

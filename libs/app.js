@@ -8,7 +8,7 @@ window.onload = function () {
 		vector = [],
 		clientDB = [],
 		valido = true,
-		noclientes = 0,
+		timer,
 		forms = document.getElementById("form_datos"),
 		panel = $('#panel'),
 		btn_delete = $('#deleteID'),
@@ -20,6 +20,7 @@ window.onload = function () {
 		lista = $('#lista'),
 		listapanel = $('#datapanel'),
 		nuevobill = $('#nuevobill'),
+		btn_save = $('#btn_save'),
 		juego = document.getElementById("jogo"),
 		txjogo = document.getElementById("txjogo"),
 		filter = document.getElementById('myFilter'),
@@ -43,6 +44,7 @@ window.onload = function () {
 				mn.text(msg);
 				status.animate({ opacity: "1" });
 				setTimeout(function () { status.animate({ opacity: '0' }); }, 3000);
+				window.console.log(msg);
 		}
 	}
 
@@ -50,9 +52,9 @@ window.onload = function () {
 		var nombresetup = getSetup();
 
 		if (!nombresetup[1]) {
-			rotulo.text("Please, edit your data biller.");
+			rotulo.text("Please, enter your information as an invoice issuer.");
 		} else {
-			rotulo.text("Your company: " + nombresetup[1]);
+			rotulo.text("Your company details: " + nombresetup[1]);
 		}
 	}
 
@@ -128,15 +130,16 @@ window.onload = function () {
 	}
 	function newcli(){
 		clear(forms);
+		btn_save.text("Save");
 
 		if (paneltitulo.text() === "Thoomic") {
 			titulo.text("New Client");
-			rotulo.text("+ Add Client");
+			rotulo.text("Add customer data.");
 			popup_nuevo_cliente.popup('open', { positionTo: "window", transition: "pop" });
 
 		} else {
 			titulo.text("New Bill");
-			rotulo.text("+ Add Invoice");
+			rotulo.text("Add Invoice");
 			bill();
 		}
 	}
@@ -150,25 +153,22 @@ window.onload = function () {
 			}
 		}
 
-		if (mydata) {
-			return mydata;
-		} else {
-			return false;
-		}
+		return mydata;
 	}
 
 	function mysetup() {
 		var datos, z;
-		clear(forms);
 
 		titulo.text("Invoice Issuer");
 		datos = getSetup();
+
 		if (datos) {
 			for (z in datos) {
 				if (datos.hasOwnProperty(z)) {
 					forms.elements[z].value = datos[z];
 				}
 			}
+			btn_save.text("Update");
 		}
 		popup_nuevo_cliente.popup('open', {positionTo: "window", transition: "pop"});
 	}
@@ -177,15 +177,17 @@ window.onload = function () {
 		var z;
 
 		if (data) {
+			lista.empty();
+
 			for (z in data) {
 				if (data.hasOwnProperty(z)) {
 					localStorage.setItem(z, data[z]);
-					texto(z + " " + localStorage.getItem(z));
 				}
 			}
-			texto("Saved data from the invoice issuer!!");
-		}
+			$("<li>").append("<a href='#' id='idsetup'><h3><span>" + data[empresa[1]] + "</span></h3></a>").appendTo(lista);
 
+			texto("Data saved from the invoice issuer!!");
+		}
 	}
 
 	function importfile() {
@@ -440,6 +442,10 @@ window.onload = function () {
 		paneltitulo.text("Thoomic");
 		lista.empty();
 		filter.focus();
+
+		if (clientDB.length <= 0) {
+			$('#logo').show();
+		}
 		clientDB = [];
 		openDB.odb.open(cons, "", refreshClientes, 'read');
 	}
@@ -470,15 +476,7 @@ window.onload = function () {
 				reqText(contents);
 			};
 			reader.readAsText(file);
-		}
-	}
-
-	function refreshsetup(datos) {
-		if (datos) {
-			$("<li>").append("<a href='#' id=" + token + "><h3><span>" + datos[empresa[1]] + "</span></h3><p><span>" + datos[empresa[0]] +
-			 "</span><span>&nbsp;&nbsp;&nbsp;&nbsp;" + datos[empresa[2]] + "</span><span>&nbsp;&nbsp;&nbsp;&nbsp;" + datos[empresa[3]] + "</span></p></a><p>" +
-			 "<a href='#' data-role='button' data-mini='true' id='bupdate' class='ui-btn ui-icon-check ui-btn-icon-left ui-btn-inline ui-corner-all ui-shadow color'>Add Location</a>" +
-			 "</p>").appendTo(lista);
+			$('#selectfile').val('');
 		}
 	}
 
@@ -512,17 +510,17 @@ window.onload = function () {
 		if (objeto.name && objeto.cif && objeto.telefono) {
 			popup_nuevo_cliente.popup('close');
 
-			if (titulo.text() === 'Invoice Issuer') {
-				saveSetup(objeto);
-				refreshsetup();
-			} else {
-				if (titulo.text() === 'New Client') {
+			switch (titulo.text()) {
+				case 'Invoice Issuer':
+					texto(titulo.text());
+					saveSetup(objeto);
+					break;
+				case 'New Client':
 					openDB.odb.open(cons, objeto, texto, 'add');
-				} else {
+					loadDB();
+					break;
+				default:
 					openDB.odb.open(cons, objeto, texto, 'update');
-				}
-
-				loadDB();
 			}
 		}
 	}
@@ -573,34 +571,55 @@ window.onload = function () {
 	function delDB() {
 		var mynb, filename = "ThoomicDB.json", blob, ref, name = $('#name'), consbill = {};
 
-		if (deltitulo.text() === "Export...") {
-			try {
-				if (clientDB) {
-					blob = new Blob([JSON.stringify(clientDB)], {type: "application/json"});
-					saveAs(blob, filename);
-					texto("ThoomicDB is saved.");
-				} else {
-					texto("No data in DataBase.");
+		switch (deltitulo.text()) {
+			case "Export...":
+				try {
+					if (clientDB.length > 0) {
+						blob = new Blob([JSON.stringify(clientDB)], {type: "application/json"});
+						saveAs(blob, filename);
+						texto("ThoomicDB is saved.");
+					} else {
+						texto("No data client in database.");
+					}
+				} catch (event) {
+					texto("Error: Thoomic.json is not saved. " + event.message);
 				}
-			} catch (event) {
-				texto("Error: Thoomic.json is not saved. " + event.message);
-			}
-		} else {
-			if (paneltitulo.text() === "Thoomic") {
+				break;
+			case "Thoomic":
 				mynb = name.text();
 				openDB.odb.open(cons, mynb, texto, 'delete');
 				consbill = {NAME: mynb, VERSION: 1};
 				openDB.odb.open(consbill, null, texto, 'deleteDB');
+
 				loadDB();
-			} else {
+				break;
+			default:
 				consbill = {NAME: paneltitulo.text(), VERSION: 1};
 				ref = btn_delete.text();
 				mynb = paneltitulo.text();
 				openDB.odb.open(consbill, ref, texto, 'delete');
 				lista.empty();
 				openDB.odb.open(consbill, mynb, refreshBill, 'read');
-			}
 		}
+	}
+	function changed(event) {
+
+		switch (event.keyCode) {
+			case 17:
+				mysetup();
+				break;
+			case 220:
+				mysetup();
+				break;
+			case 13:
+				newcli();
+				break;
+			case 107:
+				newcli();
+				break;
+			default:
+		}
+		filter.value = "";
 	}
 
 	function loadEvents() {
@@ -608,7 +627,6 @@ window.onload = function () {
 			btn_nuevo = $('#id_nuevo_cliente'),
 			btn_import = $('#import'),
 			btn_export = $('#export'),
-			btn_save = $('#btn_save'),
 			btn_menu = $('#menu'),
 			btn_update = $('#bupdate'),
 			btn_popup_delete = $('#btn_popup_delete'),
@@ -616,22 +634,7 @@ window.onload = function () {
 			btn_save_bill = $('#btn_save_bill'),
 			btn_next_bill = $('#btn_next_bill');
 
-
-		filter.addEventListener('keyup', function(event) {
-			switch (event.keyCode) {
-				case 13:
-					if (filter.value === "db" || filter.value === "add") {
-						newcli();
-					}
-					filter.value = "";
-					break;
-				default:
-
-			}
-			if (event.keyCode === 107) {
-				newcli();
-			}
-		});
+		filter.addEventListener('keyup', changed, true);
 		document.getElementById('selectfile').addEventListener('change', importData, false);
 		document.getElementById('nuevo_cliente').addEventListener('keydown', function(event) {
 			if (event.keyCode === 13) {
@@ -648,6 +651,9 @@ window.onload = function () {
 		});
 		btn_reload.click(function () {
 			rotulo.text("Load your customer DB.");
+			if(timer) {
+				clearTimeout(timer);
+			}
 			loadDB();
 		});
 		btn_reload.hover(function () {
@@ -685,14 +691,14 @@ window.onload = function () {
 		});
 		btn_nuevo.hover(function () {
 			if (paneltitulo.text() === "Thoomic") {
-				rotulo.text("+ Add Client");
+				rotulo.text("Add Client");
 			} else {
-				rotulo.text("+ Add Invoice");
+				rotulo.text("Add Invoice");
 			}
 
 		});
 		lista.hover(function () {
-			rotulo.text("Save & Export your Client Database.");
+			rotulo.text("Export your customer database.");
 		});
 
 		btn_save.click(function () {
@@ -725,5 +731,5 @@ window.onload = function () {
 	}
 	loadEvents();
 	loadSetup();
-	loadDB();
+	timer = setTimeout(loadDB, 6000);
 };
