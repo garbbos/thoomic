@@ -130,8 +130,7 @@ window.onload = function () {
 	}
 	function newcli(){
 		clear(forms);
-		btn_save.text("Save");
-
+		loadDB();
 		if (paneltitulo.text() === "Thoomic") {
 			titulo.text("New Client");
 			rotulo.text("Add customer data.");
@@ -156,37 +155,70 @@ window.onload = function () {
 		return mydata;
 	}
 
-	function mysetup() {
-		var datos, z;
+	function cargaSetup() {
+		var z, data = [], loc = [], logo = $('#textologo');
 
+
+		lista.empty();
+		logo.empty();
+		clearTimeout(timer);
+		data = getSetup();
+
+		if(data[0]){
+			$("<p>").append("<h1 style='text-align: left';><span>&nbsp;&nbsp;&nbsp;" + data[0] + "</span>&nbsp;&nbsp;" + data[1] + "</h1>").appendTo(logo);
+			$("<p style='text-align: left;'>").append("<span>&nbsp;&nbsp;&nbsp;Tel: " + data[0] + "</span><span>&nbsp;&nbsp;&nbsp;" + data[2] + "</span><span>&nbsp;&nbsp;&nbsp;" + data[3] + "</span>").appendTo(logo);
+		} else {
+			$("<p>").append("<h1 style='text-align: left';>&nbsp;&nbsp;There is no customer data in the database, please complete it!.</h1>").appendTo(logo);
+		}
+		loc.push(localStorage.getItem('domicilio'));
+		loc.push(localStorage.getItem('cp'));
+		loc.push(localStorage.getItem('poblacion'));
+		loc.push(localStorage.getItem('pais'));
+		if(loc[0]) {
+			$("<p style='text-align: left;'>").append("<span>&nbsp;&nbsp;&nbsp;" + loc[0] + "</span>").appendTo(logo);
+		}
+		if (loc[1] || loc[2] || loc[3]) {
+			$("<p style='text-align: left;'>").append("<span>&nbsp;&nbsp;&nbsp;" + loc[1] + "</span><span>&nbsp;&nbsp;&nbsp;" + loc[2] + "</span><span>&nbsp;&nbsp;&nbsp;" + loc[3] + "</span>").appendTo(logo);
+		}
+
+		$("<div style='text-align: left;'>").append("<span>&nbsp;&nbsp;<a href='#' data-role='button' id='updatesetup' data-mini='true'" +
+		" class='ui-btn ui-icon-gear ui-btn-icon-left ui-btn-inline ui-corner-all ui-shadow color'>Update</a></span><span>&nbsp;&nbsp;<a href='#' data-role='button' id='locsetup' data-mini='true'" +
+		" class='ui-btn ui-icon-home ui-btn-icon-left ui-btn-inline ui-corner-all ui-shadow color'>Location</a></span>").appendTo(logo);
+		$('#update').text('Invoice Issuer');
+
+		$('#updatesetup').click(function() {
+			popup_nuevo_cliente.popup('open', {positionTo: "window", transition: "pop"});
+		});
+		$('#locsetup').click(function() {
+			domicilio.val(loc[0]);
+			cp.val(loc[1]);
+			poblacion.val(loc[2]);
+			pais.val(loc[3]);
+
+			popup_address.popup('open', {positionTo: "window", transition: 'pop'});
+		});
+
+		$('#logo').show();
+		for (z in data) {
+			if (data.hasOwnProperty(z)) {
+				forms.elements[z].value = data[z];
+			}
+		}
+	}
+
+	function mysetup() {
+		var datos;
+
+		clear(forms);
 		titulo.text("Invoice Issuer");
 		datos = getSetup();
 
 		if (datos) {
-			for (z in datos) {
-				if (datos.hasOwnProperty(z)) {
-					forms.elements[z].value = datos[z];
-				}
-			}
-			btn_save.text("Update");
-		}
-		popup_nuevo_cliente.popup('open', {positionTo: "window", transition: "pop"});
-	}
+			lista.removeClass('datos');
 
-	function saveSetup(data) {
-		var z;
-
-		if (data) {
-			lista.empty();
-
-			for (z in data) {
-				if (data.hasOwnProperty(z)) {
-					localStorage.setItem(z, data[z]);
-				}
-			}
-			$("<li>").append("<a href='#' id='idsetup'><h3><span>" + data[empresa[1]] + "</span></h3></a>").appendTo(lista);
-
-			texto("Data saved from the invoice issuer!!");
+			cargaSetup();
+		} else {
+			popup_nuevo_cliente.popup('open', {positionTo: "window", transition: "pop"});
 		}
 	}
 
@@ -201,13 +233,18 @@ window.onload = function () {
 	}
 
 	function exportdata() {
+		panel.panel('close');
+
+		if(clientDB[0]) {
+			deltitulo.text("Export...");
+		} else {
+			deltitulo.text("There is no customer data...");
+		}
 
 		popup_delete.popup('open', { positionTo: "window", transition: "pop" });
-		deltitulo.text("Export...");
 	}
 
 	function deleteID() {
-
 		panel.panel('close');
 		deltitulo.text("Deleting...");
 		popup_delete.popup('open', { positionTo: "window", transition: "pop" });
@@ -216,7 +253,7 @@ window.onload = function () {
 	function refreshBill(datos) {
 		var id, suma, respuesta = [], formo = document.getElementById('#form_update'), tax = $('#tax'), sel = $('#sel');
 
-		if (datos) {
+		if (datos.name) {
 			$("<li>").append("<a href='#' id=" + datos.name + "><h3>" + datos.titulo + "</h3><p>Date: " + datos.fecha + "&nbsp;&nbsp;&nbsp;&nbsp;Bill Nº: " + datos.name + "&nbsp;&nbsp;&nbsp;&nbsp;</p></a>").appendTo(lista);
 
 			titulobill.text(datos.titulo);
@@ -232,10 +269,7 @@ window.onload = function () {
 				for (z in datos) {
 					if (datos.hasOwnProperty(z)) {
 
-						if (z === "titulo") {
-
-						} else {
-
+						if (z != "titulo") {
 							if (z === "name") {
 								idfac = "#fac" + datos[z];
 								$("<li>").append("<a href='#' class='color' id=fac" + datos[z] + ">Nº " + datos[z] + "</a>").appendTo(listapanel);
@@ -295,6 +329,9 @@ window.onload = function () {
 				panel.panel('open');
 			});
 			lista.listview('refresh');
+		} else {
+			$("<p>").append("<h1 style='text-align: left';>&nbsp;&nbsp;&nbsp;There is no bills data in database.</h1>").appendTo($('#textologo'));
+			$('#logo').show();
 		}
 	}
 
@@ -422,7 +459,7 @@ window.onload = function () {
 				});
 				$('#cif').click(function (event) {
 					bills(datos[empresa[1]]);
-					rotulo.text("Click + and create your bill.");
+					rotulo.text("+ Make your bills.");
 				});
 
 				$('#name').click(function (event) {
@@ -443,11 +480,12 @@ window.onload = function () {
 		lista.empty();
 		filter.focus();
 
-		if (clientDB.length <= 0) {
-			$('#logo').show();
-		}
 		clientDB = [];
 		openDB.odb.open(cons, "", refreshClientes, 'read');
+		if (clientDB.length <= 0) {
+			lista.addClass('datos');
+			$('#logo').show();
+		}
 	}
 
 	function reqText(data) {
@@ -481,7 +519,7 @@ window.onload = function () {
 	}
 
 	function save_client() {
-		var objeto = {}, cif = $('#id_cif'), nombre = $('#id_nombre'), telefono = $('#id_telefono'), email = $('#id_email');
+		var z, objeto = {}, cif = $('#id_cif'), nombre = $('#id_nombre'), telefono = $('#id_telefono'), email = $('#id_email');
 
 		if (/^(\+\d{2,3}\s)*\d{9,10}$/.test(telefono.val())) {
 			objeto.telefono = telefono.val();
@@ -512,8 +550,15 @@ window.onload = function () {
 
 			switch (titulo.text()) {
 				case 'Invoice Issuer':
-					texto(titulo.text());
-					saveSetup(objeto);
+					for (z in objeto) {
+						if (objeto.hasOwnProperty(z)) {
+							localStorage.setItem(z, objeto[z]);
+							texto(objeto[z]);
+						}
+					}
+					cargaSetup();
+					texto("Data saved from the invoice issuer!!");
+
 					break;
 				case 'New Client':
 					openDB.odb.open(cons, objeto, texto, 'add');
@@ -522,50 +567,47 @@ window.onload = function () {
 				default:
 					openDB.odb.open(cons, objeto, texto, 'update');
 			}
+
 		}
 	}
 
 	function save_location() {
-		var objeto = {};
+		var objeto = [];
 
 		objeto.name = $('#update').text();
-		texto(objeto.name);
 
 		if (/\w*/.test(cp.val())) {
-			objeto.cp = cp.val();
+			localStorage.setItem('cp', cp.val());
 		} else {
 			checkInput(cp);
 		}
 
 		if (/\w*/.test(domicilio.val())) {
-			objeto.domicilio = domicilio.val();
+			localStorage.setItem('domicilio', domicilio.val());
 		} else {
 			checkInput(domicilio);
 		}
 
 		if (/\w*/.test(poblacion.val())) {
-			objeto.poblacion = poblacion.val();
+			localStorage.setItem('poblacion', poblacion.val());
 		} else {
 			checkInput(poblacion);
 		}
 
 		if (/\w*/.test(pais.val())) {
-			objeto.pais = pais.val();
+			localStorage.setItem('pais', pais.val());
 		} else {
 			checkInput(pais);
 		}
 		popup_address.popup('close');
 		if ($('#update').text() === 'Invoice Issuer') {
-			localStorage.setItem('issuer', objeto);
+			cargaSetup();
 		} else {
 			openDB.odb.open(cons, objeto, texto, 'update');
 			loadDB();
 		}
 
-		domicilio.val('');
-		cp.val('');
-		poblacion.val('');
-		pais.val('');
+
 	}
 
 	function delDB() {
@@ -574,18 +616,14 @@ window.onload = function () {
 		switch (deltitulo.text()) {
 			case "Export...":
 				try {
-					if (clientDB.length > 0) {
-						blob = new Blob([JSON.stringify(clientDB)], {type: "application/json"});
-						saveAs(blob, filename);
-						texto("ThoomicDB is saved.");
-					} else {
-						texto("No data client in database.");
-					}
+					blob = new Blob([JSON.stringify(clientDB)], {type: "application/json"});
+					saveAs(blob, filename);
+					texto("ThoomicDB.json file is saved.");
 				} catch (event) {
-					texto("Error: Thoomic.json is not saved. " + event.message);
+					texto("Error: ThoomicDB.json is not saved. " + event.message);
 				}
 				break;
-			case "Thoomic":
+			case "Deleting...":
 				mynb = name.text();
 				openDB.odb.open(cons, mynb, texto, 'delete');
 				consbill = {NAME: mynb, VERSION: 1};
@@ -628,7 +666,6 @@ window.onload = function () {
 			btn_import = $('#import'),
 			btn_export = $('#export'),
 			btn_menu = $('#menu'),
-			btn_update = $('#bupdate'),
 			btn_popup_delete = $('#btn_popup_delete'),
 			btn_domi = $('#bsave'),
 			btn_save_bill = $('#btn_save_bill'),
@@ -667,17 +704,7 @@ window.onload = function () {
 		btn_import.hover(function () {
 			rotulo.text("Imports the customer data file.");
 		});
-		btn_update.click(function () {
-			var ob = {};
 
-			rotulo.text("Update the address of the issuerof the invoice.");
-			ob = (localStorage.getItem('issuer'));
-			direccion.val(ob.direccion);
-			poblacion.val(ob.poblacion);
-			cp.val(ob.cp);
-			pais.val(ob.pais);
-			popup_address.popup('open', {positionTo: "window", transition: 'pop'});
-		});
 		btn_export.click(function () {
 			rotulo.text("Exports customer database.");
 			exportdata();

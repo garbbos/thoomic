@@ -17,11 +17,11 @@ var openDB = (function () {
 					}
 				};
 				res.onerror = function (e) {
-					callback("Error no data");
+					callback("OpenDB: Error no data exists.");
 					return;
 				};
 			} catch (event) {
-				callback("Read DB failed. " + event.message);
+				callback("OpenDB: Failure reading the database. " + event.message);
 			}
 		},
 
@@ -36,11 +36,11 @@ var openDB = (function () {
 					return res.result;
 				};
 				res.onerror = function (e) {
-					callback("Error: get " + e.message);
+					callback("OpenDB: get " + e.message);
 					return;
 				};
 			} catch (event) {
-				window.console.log("Read record failed. " + event.message);
+				window.console.log("OpenDB: Failure reading record. " + event.message);
 			}
 		},
 
@@ -48,7 +48,7 @@ var openDB = (function () {
 			try {
 				indexedDB.deleteDatabase(store);
 			} catch (e) {
-				callback("Error " + e.message);
+				callback("OpenDB: Error " + e.message);
 			}
 		},
 
@@ -57,11 +57,11 @@ var openDB = (function () {
 
 			try {
 				req = store.add(data).onsuccess = function (e) {
-					callback("Add record " + JSON.stringify(data.name) + " success.");
+					callback("OpenDB: Add record " + JSON.stringify(data.name) + " success.");
 					return true;
 				};
 			} catch (event) {
-				callback("ADD record failed. " + event.message);
+				callback("OpenDB: Failure adding record. " + event.message);
 				return;
 			}
 		},
@@ -73,15 +73,15 @@ var openDB = (function () {
 
 				res = store['delete'](data);
 				res.onsuccess = function (e) {
-					callback(data + "  is Deleted.");
+					callback("OpenDB:" + data + "  is deleted.");
 					return true;
 				};
 				res.onerror = function (e) {
-					callback("Error " + data + "  is not Deleted.");
+					callback("OpenDB: Failure deleting " + data + ".");
 					return;
 				};
 			} catch (event) {
-				callback("ADD record failed. " + event.message);
+				callback("OpenDB: Failure deleting record. " + event.message);
 				return;
 			}
 		},
@@ -106,19 +106,19 @@ var openDB = (function () {
 						}
 
 						store.put(record).onsuccess = function (e) {
-							callback("Update record: UPDATE " + record.name);
+							callback("OpenDB: Updating " + record.name + " customer data." );
 						};
 					}
 				};
 
 				res.onerror = function (ev) {
 					store.add(record).onsuccess = function (e) {
-						callback("Update record: ADD " + record.name);
+						callback("OpenDB: Adding " + record.name + "customer data");
 					};
 				};
 
 			} catch (event) {
-				callback("ADD record failed. " + event.message);
+				callback("OpenDB: Failure to add client data. " + event.message);
 			}
 		};
 
@@ -171,7 +171,7 @@ var openDB = (function () {
 				}
 			};
 		} catch (event) {
-			callback("Error open DB. " + event.message);
+			callback("OpenDB: Failure to open database. " + event.message);
 			return;
 		}
 	};
