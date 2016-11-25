@@ -50,11 +50,11 @@ window.onload = function () {
 
 	function loadSetup() {
 		var nombresetup = getSetup();
-
+		filter.focus();
 		if (!nombresetup[1]) {
 			rotulo.text("Please, enter your information as an invoice issuer.");
 		} else {
-			rotulo.text("Your company details: " + nombresetup[1]);
+			rotulo.text("Button menu for details: " + nombresetup[1]);
 		}
 	}
 
@@ -166,7 +166,7 @@ window.onload = function () {
 
 		if(data[0]){
 			$("<p>").append("<h1 style='text-align: left';><span>&nbsp;&nbsp;&nbsp;" + data[0] + "</span>&nbsp;&nbsp;" + data[1] + "</h1>").appendTo(logo);
-			$("<p style='text-align: left;'>").append("<span>&nbsp;&nbsp;&nbsp;Tel: " + data[0] + "</span><span>&nbsp;&nbsp;&nbsp;" + data[2] + "</span><span>&nbsp;&nbsp;&nbsp;" + data[3] + "</span>").appendTo(logo);
+			$("<p style='text-align: left;'>").append("<span>&nbsp;&nbsp;&nbsp;Tel: " + data[2] + "</span><span>&nbsp;&nbsp;&nbsp;" + data[3] + "</span>").appendTo(logo);
 		} else {
 			$("<p>").append("<h1 style='text-align: left';>&nbsp;&nbsp;There is no customer data in the database, please complete it!.</h1>").appendTo(logo);
 		}
@@ -411,10 +411,14 @@ window.onload = function () {
 	var refreshClientes = function (datos) {
 		var id, token, z;
 
-		if (datos) {
+		if (datos[empresa[1]]) {
+
 			$('#logo').hide();
 
 			clientDB.push(datos);
+			if(clientDB.length === 1) {
+				lista.addClass('datos');
+			}
 
 			domicilio.val('');
 			token = datos[empresa[1]].split('.', 1).toString();
@@ -472,6 +476,8 @@ window.onload = function () {
 			});
 
 			lista.listview('refresh');
+		} else {
+			texto("There is no database, please write it.");
 		}
 	};
 
@@ -479,13 +485,8 @@ window.onload = function () {
 		paneltitulo.text("Thoomic");
 		lista.empty();
 		filter.focus();
-
 		clientDB = [];
 		openDB.odb.open(cons, "", refreshClientes, 'read');
-		if (clientDB.length <= 0) {
-			lista.addClass('datos');
-			$('#logo').show();
-		}
 	}
 
 	function reqText(data) {
@@ -650,7 +651,7 @@ window.onload = function () {
 				mysetup();
 				break;
 			case 13:
-				newcli();
+				loadDB();
 				break;
 			case 107:
 				newcli();
@@ -679,6 +680,16 @@ window.onload = function () {
 			}
 		});
 		document.getElementById('nuevo_cliente').addEventListener('keydown', function(event) {
+			if (event.keyCode === 27) {
+				popup_address.popup('close');
+			}
+		});
+		document.getElementById('address').addEventListener('keydown', function(event) {
+			if (event.keyCode === 13) {
+				save_location();
+			}
+		});
+		document.getElementById('address').addEventListener('keydown', function(event) {
 			if (event.keyCode === 27) {
 				popup_nuevo_cliente.popup('close');
 			}
@@ -748,11 +759,11 @@ window.onload = function () {
 			delDB();
 		});
 		btn_menu.click(function() {
-			rotulo.text("Store the data of your company.");
+			rotulo.text("Update your company details.");
 			mysetup();
 		});
 		btn_menu.hover(function() {
-			rotulo.text("Write the data of your company.");
+			rotulo.text("Update your company details.");
 		});
 
 	}
