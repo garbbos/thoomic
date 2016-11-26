@@ -157,58 +157,41 @@ window.onload = function () {
 		return mydata;
 	}
 
-	function cargaSetup() {
-		var z, data = [], loc = [], logo = $('#textologo');
+	function carga(data) {
+		var z, logo = $('#textologo');
 
-
+		panel.panel('close');
 		lista.empty();
 		logo.empty();
 		clearTimeout(timer);
-		data = getSetup();
 
-		if(data[0]){
-			$("<p>").append("<h1 style='text-align: left';><span>&nbsp;&nbsp;&nbsp;" + data[0] + "</span>&nbsp;&nbsp;" + data[1] + "</h1>").appendTo(logo);
-			$("<p style='text-align: left;'>").append("<span>&nbsp;&nbsp;&nbsp;Tel: " + data[2] + "</span><span>&nbsp;&nbsp;&nbsp;" + data[3] + "</span>").appendTo(logo);
+		if(data.name) {
+			$("<a href='#' class='ui-btn ui-btn-inline ui-icon-gear ui-btn-icon-left ui-mini ui-corner-all' id='up'>").append("toname").appendTo($('#hori'));
+			$("<a href='#' class='ui-btn ui-btn-inline ui-icon-grid ui-btn-icon-left ui-mini ui-corner-all color' id='bill'>").append("toBill").appendTo($('#hori'));
+			$("<div>").append("<span>&nbsp;&nbsp;&nbsp;" + data.cif + "</span><span>&nbsp;&nbsp;&nbsp;Tel: " + data.telefono + "</span><span>&nbsp;&nbsp;&nbsp;" + (data.email || '') + "</span><p>").appendTo(logo);
+			$("<div class='margen'>").append("<a href='#' id='loc' data-mini='true' class='ui-btn ui-mini ui-icon-home ui-btn-icon-left ui-btn-inline ui-corner-all'>" + (data.domicilio || '') + "</a>").appendTo(logo);
+
+			$("<div>").append("</span><span>&nbsp;&nbsp;&nbsp;" + (data.cp || '') + "</span><span>&nbsp;&nbsp;&nbsp;" + (data.poblacion || 'Location') + "</span><span>&nbsp;&nbsp;&nbsp;" + (data.pais || '') + "</span><p>").appendTo(logo);
+
 		} else {
-			$("<p>").append("<h1 style='text-align: left';>&nbsp;&nbsp;No details of your company, please complete it!.</h1>").appendTo(logo);
+			$("<div>").append("<h1 style='text-align: left';>&nbsp;&nbsp;No details of your company, please complete it!.</h1>").appendTo(logo);
 		}
 
-		loc.push(localStorage.getItem('domicilio'));
-		loc.push(localStorage.getItem('cp'));
-		loc.push(localStorage.getItem('poblacion'));
-		loc.push(localStorage.getItem('pais'));
+		$('#update').text(data.name);
 
-		if(loc[0]) {
-			$("<p style='text-align: left;'>").append("<span>&nbsp;&nbsp;&nbsp;" + loc[0] + "</span>").appendTo(logo);
-		}
-		if (loc[1] || loc[2] || loc[3]) {
-			$("<p style='text-align: left;'>").append("<span>&nbsp;&nbsp;&nbsp;" + loc[1] + "</span><span>&nbsp;&nbsp;&nbsp;" + loc[2] + "</span><span>&nbsp;&nbsp;&nbsp;" + loc[3] + "</span>").appendTo(logo);
-		}
-
-		$("<div style='text-align: left;'>").append("<span>&nbsp;&nbsp;<a href='#' data-role='button' id='updatesetup' data-mini='true'" +
-		" class='ui-btn ui-icon-gear ui-btn-icon-left ui-btn-inline ui-corner-all ui-shadow color'>Update</a></span><span>&nbsp;&nbsp;<a href='#' data-role='button' id='locsetup' data-mini='true'" +
-		" class='ui-btn ui-icon-home ui-btn-icon-left ui-btn-inline ui-corner-all ui-shadow color'>Location</a></span>").appendTo(logo);
-		$('#update').text('Invoice Issuer');
-
-		$('#updatesetup').click(function() {
-			popup_nuevo_cliente.popup('open', {positionTo: "window", transition: "pop"});
+		$('#up').click(function() {
+			edit(data);
 		});
-		$('#locsetup').click(function() {
-			domicilio.val(loc[0]);
-			cp.val(loc[1]);
-			poblacion.val(loc[2]);
-			pais.val(loc[3]);
+		$('#loc').click(function() {
+			domicilio.val(data.domicilio);
+			cp.val(data.cp);
+			poblacion.val(data.poblacion);
+			pais.val(data.pais);
 
 			popup_address.popup('open', {positionTo: "window", transition: 'pop'});
 		});
 
 		$('#logo').show();
-		clear(forms);
-		for (z in data) {
-			if (data.hasOwnProperty(z)) {
-				forms.elements[z].value = data[z];
-			}
-		}
 	}
 
 	function mysetup() {
@@ -219,7 +202,7 @@ window.onload = function () {
 		datos = getSetup();
 
 		if (datos) {
-			cargaSetup();
+			carga(datos);
 		} else {
 			popup_nuevo_cliente.popup('open', {positionTo: "window", transition: "pop"});
 		}
@@ -257,7 +240,7 @@ window.onload = function () {
 		var id, suma, respuesta = [], formo = document.getElementById('#form_update'), tax = $('#tax'), sel = $('#sel');
 
 		if(typeof datos == 'string' && vector.length < 1) {
-			rotulo.text(datos);
+			rotulo.text("There is no data in database, please add invoices.");
 		} else {
 			$("<li>").append("<a href='#' id=" + datos.name + "><h3>" + datos.titulo + "</h3><p>Date: " + datos.fecha + "&nbsp;&nbsp;&nbsp;&nbsp;Bill Nº: " + datos.name + "&nbsp;&nbsp;&nbsp;&nbsp;</p></a>").appendTo(lista);
 
@@ -413,13 +396,12 @@ window.onload = function () {
 	var refreshClientes = function (datos) {
 		var id, token, z;
 
+		$('#logo').hide();
 		if(typeof datos == 'string' && clientDB.length <1) {
 			texto(datos);
-			rotulo.text(datos);
+			rotulo.text("There is no data in database, please add new client.");
 		} else {
 			if(typeof datos != 'string') {
-				$('#logo').hide();
-
 				clientDB.push(datos);
 				token = datos[empresa[1]].split('.', 1).toString();
 
@@ -445,30 +427,14 @@ window.onload = function () {
 							}
 						}
 					}
-
-					if (!datos.domicilio || !datos.cp || !datos.pais || !datos.poblacion) {
-						$("<li>").append("<a href='#' class='color' id=moreaddress>Add Location</a>").appendTo(listapanel);
-					}
-					$('#moreaddress').click(function (event) {
-						$('#update').text(datos.name);
-
-						domicilio.val(datos.domicilio);
-						poblacion.val(datos.poblacion);
-						cp.val(datos.cp);
-						pais.val(datos.pais);
-
-						popup_address.popup('open', {positionTo: "window", transition: 'pop'});
-						panel.panel('close');
-						rotulo.text("Enter the address of the customer.");
-					});
+					
 					$('#cif').click(function (event) {
 						bills(datos[empresa[1]]);
 						rotulo.text("Add your invoices.");
 					});
 
 					$('#name').click(function (event) {
-						edit(datos);
-						rotulo.text("Modify your customer data.");
+						carga(datos);
 					});
 
 					listapanel.listview('refresh');
@@ -557,9 +523,8 @@ window.onload = function () {
 							texto(objeto[z]);
 						}
 					}
-					cargaSetup();
+					carga(objeto);
 					texto("Data saved from the invoice issuer!!");
-
 					break;
 				case 'New Client':
 					openDB.odb.open(cons, objeto, texto, 'add');
@@ -569,51 +534,48 @@ window.onload = function () {
 					openDB.odb.open(cons, objeto, texto, 'update');
 					loadDB();
 			}
-
 		}
 	}
 
-	function save_location() {
-		var objeto = [];
+	function saveLocation() {
+		var objeto = {};
 
 		objeto.name = $('#update').text();
-
 		if (/\w*/.test(domicilio.val())) {
-			objeto.push(domicilio.val());
+			objeto.domicilio = domicilio.val();
 		} else {
 			checkInput(domicilio);
 		}
 
 		if (/\w*/.test(cp.val())) {
-			objeto.push(cp.val());
+			objeto.cp = cp.val();
 		} else {
 			checkInput(cp);
 		}
 
 		if (/\w*/.test(poblacion.val())) {
-			objeto.push(poblacion.val());
+			objeto.poblacion = poblacion.val();
 		} else {
 			checkInput(poblacion);
 		}
 
 		if (/\w*/.test(pais.val())) {
-			objeto.push(pais.val());
+			objeto.pais = pais.val();
 		} else {
 			checkInput(pais);
 		}
+		texto($('#update').text());
 		popup_address.popup('close');
 		if ($('#update').text() === 'Invoice Issuer') {
-			localStorage.setItem('domicilio', objeto[0]);
-			localStorage.setItem('cp', objeto[1]);
-			localStorage.setItem('poblacion', objeto[2]);
-			localStorage.setItem('pais', objeto[3]);
-			cargaSetup();
+			localStorage.setItem('domicilio', objeto.domicilio);
+			localStorage.setItem('cp', objeto.cp);
+			localStorage.setItem('poblacion', objeto.poblacion);
+			localStorage.setItem('pais', objeto.pais);
+			carga(objeto);
 		} else {
 			openDB.odb.open(cons, objeto, texto, 'update');
 			loadDB();
 		}
-
-
 	}
 
 	function delDB() {
@@ -691,7 +653,7 @@ window.onload = function () {
 		});
 		document.getElementById('address').addEventListener('keydown', function(event) {
 			if (event.keyCode === 13) {
-				save_location();
+				saveLocation();
 			}
 		});
 		document.getElementById('address').addEventListener('keydown', function(event) {
@@ -700,17 +662,13 @@ window.onload = function () {
 			}
 		});
 		btn_domi.click(function (){
-			save_location();
+			saveLocation();
 		});
 		btn_reload.click(function () {
-			rotulo.text("Load your customer DB.");
 			if(timer) {
 				clearTimeout(timer);
 			}
 			loadDB();
-		});
-		btn_reload.hover(function () {
-			rotulo.text("Load your customer DB.");
 		});
 
 		btn_import.click(function () {
