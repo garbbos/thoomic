@@ -130,8 +130,10 @@ window.onload = function () {
 	}
 	function newcli(){
 		clear(forms);
-		loadDB();
+
 		if (paneltitulo.text() === "Thoomic") {
+
+			loadDB();
 			titulo.text("New Client");
 			rotulo.text("Add customer data.");
 			popup_nuevo_cliente.popup('open', { positionTo: "window", transition: "pop" });
@@ -168,12 +170,14 @@ window.onload = function () {
 			$("<p>").append("<h1 style='text-align: left';><span>&nbsp;&nbsp;&nbsp;" + data[0] + "</span>&nbsp;&nbsp;" + data[1] + "</h1>").appendTo(logo);
 			$("<p style='text-align: left;'>").append("<span>&nbsp;&nbsp;&nbsp;Tel: " + data[2] + "</span><span>&nbsp;&nbsp;&nbsp;" + data[3] + "</span>").appendTo(logo);
 		} else {
-			$("<p>").append("<h1 style='text-align: left';>&nbsp;&nbsp;There is no customer data in the database, please complete it!.</h1>").appendTo(logo);
+			$("<p>").append("<h1 style='text-align: left';>&nbsp;&nbsp;No details of your company, please complete it!.</h1>").appendTo(logo);
 		}
+
 		loc.push(localStorage.getItem('domicilio'));
 		loc.push(localStorage.getItem('cp'));
 		loc.push(localStorage.getItem('poblacion'));
 		loc.push(localStorage.getItem('pais'));
+
 		if(loc[0]) {
 			$("<p style='text-align: left;'>").append("<span>&nbsp;&nbsp;&nbsp;" + loc[0] + "</span>").appendTo(logo);
 		}
@@ -199,6 +203,7 @@ window.onload = function () {
 		});
 
 		$('#logo').show();
+		clear(forms);
 		for (z in data) {
 			if (data.hasOwnProperty(z)) {
 				forms.elements[z].value = data[z];
@@ -214,8 +219,6 @@ window.onload = function () {
 		datos = getSetup();
 
 		if (datos) {
-			lista.removeClass('datos');
-
 			cargaSetup();
 		} else {
 			popup_nuevo_cliente.popup('open', {positionTo: "window", transition: "pop"});
@@ -253,7 +256,9 @@ window.onload = function () {
 	function refreshBill(datos) {
 		var id, suma, respuesta = [], formo = document.getElementById('#form_update'), tax = $('#tax'), sel = $('#sel');
 
-		if (datos.name) {
+		if(typeof datos == 'string' && vector.length < 1) {
+			rotulo.text(datos);
+		} else {
 			$("<li>").append("<a href='#' id=" + datos.name + "><h3>" + datos.titulo + "</h3><p>Date: " + datos.fecha + "&nbsp;&nbsp;&nbsp;&nbsp;Bill Nº: " + datos.name + "&nbsp;&nbsp;&nbsp;&nbsp;</p></a>").appendTo(lista);
 
 			titulobill.text(datos.titulo);
@@ -329,9 +334,6 @@ window.onload = function () {
 				panel.panel('open');
 			});
 			lista.listview('refresh');
-		} else {
-			$("<p>").append("<h1 style='text-align: left';>&nbsp;&nbsp;&nbsp;There is no bills data in database.</h1>").appendTo($('#textologo'));
-			$('#logo').show();
 		}
 	}
 
@@ -411,73 +413,70 @@ window.onload = function () {
 	var refreshClientes = function (datos) {
 		var id, token, z;
 
-		if (datos[empresa[1]]) {
+		if(typeof datos == 'string' && clientDB.length <1) {
+			texto(datos);
+			rotulo.text(datos);
+		} else {
+			if(typeof datos != 'string') {
+				$('#logo').hide();
 
-			$('#logo').hide();
+				clientDB.push(datos);
+				token = datos[empresa[1]].split('.', 1).toString();
 
-			clientDB.push(datos);
-			if(clientDB.length === 1) {
-				lista.addClass('datos');
-			}
+				$("<li>").append("<a href='#' id=" + token + "><h3><span>" + datos[empresa[1]] + "</span></h3><p><span>" + datos[empresa[0]] + "</span><span>&nbsp;&nbsp;&nbsp;&nbsp;" + datos[empresa[2]] + "</span><span>&nbsp;&nbsp;&nbsp;&nbsp;" + datos[empresa[3]] + "</span></p></a>").appendTo(lista);
 
-			domicilio.val('');
-			token = datos[empresa[1]].split('.', 1).toString();
+				id = "#" + token;
+				$(id).click(function (event) {
+					event.stopPropagation();
 
-			$("<li>").append("<a href='#' id=" + token + "><h3><span>" + datos[empresa[1]] + "</span></h3><p><span>" + datos[empresa[0]] + "</span><span>&nbsp;&nbsp;&nbsp;&nbsp;" + datos[empresa[2]] + "</span><span>&nbsp;&nbsp;&nbsp;&nbsp;" + datos[empresa[3]] + "</span></p></a>").appendTo(lista);
-
-			id = "#" + token;
-			$(id).click(function (event) {
-				event.stopPropagation();
-
-				listapanel.empty();
-				for (z in datos) {
-					if (datos.hasOwnProperty(z)) {
-						if (datos[z]) {
-							if (z === "cif") {
-								$("<li>").append("<a href='#' class='color' id=" + z + ">" + datos[z] + "</a>").appendTo(listapanel);
-							} else {
-								if (z === "name") {
+					listapanel.empty();
+					for (z in datos) {
+						if (datos.hasOwnProperty(z)) {
+							if (datos[z]) {
+								if (z === "cif") {
 									$("<li>").append("<a href='#' class='color' id=" + z + ">" + datos[z] + "</a>").appendTo(listapanel);
 								} else {
-									$("<li class='color'>").append("<span>" + datos[z] + "</span>").appendTo(listapanel);
+									if (z === "name") {
+										$("<li>").append("<a href='#' class='color' id=" + z + ">" + datos[z] + "</a>").appendTo(listapanel);
+									} else {
+										$("<li class='color'>").append("<span>" + datos[z] + "</span>").appendTo(listapanel);
+									}
 								}
 							}
 						}
 					}
-				}
 
-				if (!datos.domicilio || !datos.cp || !datos.pais || !datos.poblacion) {
-					$("<li>").append("<a href='#' class='color' id=moreaddress>Add Location</a>").appendTo(listapanel);
-				}
-				$('#moreaddress').click(function (event) {
-					$('#update').text(datos.name);
+					if (!datos.domicilio || !datos.cp || !datos.pais || !datos.poblacion) {
+						$("<li>").append("<a href='#' class='color' id=moreaddress>Add Location</a>").appendTo(listapanel);
+					}
+					$('#moreaddress').click(function (event) {
+						$('#update').text(datos.name);
 
-					domicilio.val(datos.domicilio);
-					poblacion.val(datos.poblacion);
-					cp.val(datos.cp);
-					pais.val(datos.pais);
+						domicilio.val(datos.domicilio);
+						poblacion.val(datos.poblacion);
+						cp.val(datos.cp);
+						pais.val(datos.pais);
 
-					popup_address.popup('open', {positionTo: "window", transition: 'pop'});
-					panel.panel('close');
-					rotulo.text("Enter the address of the customer.");
+						popup_address.popup('open', {positionTo: "window", transition: 'pop'});
+						panel.panel('close');
+						rotulo.text("Enter the address of the customer.");
+					});
+					$('#cif').click(function (event) {
+						bills(datos[empresa[1]]);
+						rotulo.text("Add your invoices.");
+					});
+
+					$('#name').click(function (event) {
+						edit(datos);
+						rotulo.text("Modify your customer data.");
+					});
+
+					listapanel.listview('refresh');
+					panel.panel('open');
 				});
-				$('#cif').click(function (event) {
-					bills(datos[empresa[1]]);
-					rotulo.text("+ Make your bills.");
-				});
 
-				$('#name').click(function (event) {
-					edit(datos);
-					rotulo.text("Modify your customer data.");
-				});
-
-				listapanel.listview('refresh');
-				panel.panel('open');
-			});
-
-			lista.listview('refresh');
-		} else {
-			texto("There is no database, please write it.");
+				lista.listview('refresh');
+			}
 		}
 	};
 
@@ -485,6 +484,7 @@ window.onload = function () {
 		paneltitulo.text("Thoomic");
 		lista.empty();
 		filter.focus();
+
 		clientDB = [];
 		openDB.odb.open(cons, "", refreshClientes, 'read');
 	}
@@ -567,6 +567,7 @@ window.onload = function () {
 					break;
 				default:
 					openDB.odb.open(cons, objeto, texto, 'update');
+					loadDB();
 			}
 
 		}
@@ -577,31 +578,35 @@ window.onload = function () {
 
 		objeto.name = $('#update').text();
 
-		if (/\w*/.test(cp.val())) {
-			localStorage.setItem('cp', cp.val());
-		} else {
-			checkInput(cp);
-		}
-
 		if (/\w*/.test(domicilio.val())) {
-			localStorage.setItem('domicilio', domicilio.val());
+			objeto.push(domicilio.val());
 		} else {
 			checkInput(domicilio);
 		}
 
+		if (/\w*/.test(cp.val())) {
+			objeto.push(cp.val());
+		} else {
+			checkInput(cp);
+		}
+
 		if (/\w*/.test(poblacion.val())) {
-			localStorage.setItem('poblacion', poblacion.val());
+			objeto.push(poblacion.val());
 		} else {
 			checkInput(poblacion);
 		}
 
 		if (/\w*/.test(pais.val())) {
-			localStorage.setItem('pais', pais.val());
+			objeto.push(pais.val());
 		} else {
 			checkInput(pais);
 		}
 		popup_address.popup('close');
 		if ($('#update').text() === 'Invoice Issuer') {
+			localStorage.setItem('domicilio', objeto[0]);
+			localStorage.setItem('cp', objeto[1]);
+			localStorage.setItem('poblacion', objeto[2]);
+			localStorage.setItem('pais', objeto[3]);
 			cargaSetup();
 		} else {
 			openDB.odb.open(cons, objeto, texto, 'update');

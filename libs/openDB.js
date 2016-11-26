@@ -13,6 +13,7 @@ var openDB = (function () {
 						callback(cursor.value);
 						cursor['continue']();
 					} else {
+						callback("OpenDB: No more data in database.");
 						return;
 					}
 				};
@@ -40,7 +41,7 @@ var openDB = (function () {
 					return;
 				};
 			} catch (event) {
-				window.console.log("OpenDB: Failure reading record. " + event.message);
+				callback("OpenDB: Failure reading record. " + event.message);
 			}
 		},
 
@@ -127,7 +128,6 @@ var openDB = (function () {
 
 		try {
 			request = indexedDB.open(cons.NAME, cons.VERSION);
-
 			request.onerror = function (e) {
 				window.console.log("OpenDB: open... request.onerror " + e.message);
 				return;
@@ -146,28 +146,27 @@ var openDB = (function () {
 				transaction = db.transaction('clientes', 'readwrite');
 				store = transaction.objectStore('clientes');
 
-				if (modo === 'read') {
-					read(store, callback);
-				}
-
-				if (modo === 'get') {
-					getID(store, data, callback);
-				}
-
-				if (modo === 'add') {
-					add(store, data, callback);
-				}
-
-				if (modo === 'update') {
-					update(store, data, callback);
-				}
-
-				if (modo === 'delete') {
-					del(store, data, callback);
-				}
-
-				if (modo === 'deleteDB') {
-					deleteDB(cons.NAME, callback);
+				switch (modo) {
+					case 'read':
+						read(store, callback);
+						break;
+					case 'get':
+						getID(store, data, callback);
+					break;
+					case 'add':
+						add(store, data, callback);
+					break;
+					case 'update':
+						update(store, data, callback);
+					break;
+					case 'delete':
+						del(store, data, callback);
+					break;
+					case 'deleteDB':
+						deleteDB(cons.NAME, callback);
+					break;
+					default:
+						callback("OpenDB: There is no operation defined.");
 				}
 			};
 		} catch (event) {
