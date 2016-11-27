@@ -75,15 +75,13 @@
                 <input id="myFilter" data-type="search" placeholder="Search...">
             </form>
             <ul id="lista" class="" data-role="listview" data-filter="true" data-input="#myFilter" data-inset="true">
+
             </ul>
-        </div>
+            <div class="logo datos" id="logo">
+                <img src="img/thoomic.svg" alt="Logo Thoomic.com"/>
 
-        <div class="logo datos" id="logo">
-            <img src="img/thoomic.svg" alt="Logo Thoomic.com"/>
-            <div id="hori" style="text-align: left;" data-role="controlgroup" data-type="horizontal">
-
+                <div id="textologo" style="text-align: left;"><h3>&nbsp;&nbsp;&#34;&#43;&#34;&nbsp;&nbsp;Save new customer data.</h3><h3>&nbsp;&nbsp;&#34;&#92;&#34;&nbsp;&nbsp;Update your company details.</h3></div>
             </div>
-            <div id="textologo" style="text-align: left;"><h3>&nbsp;&nbsp;&#34;&#43;&#34;&nbsp;&nbsp;Save new customer data.</h3><h3>&nbsp;&nbsp;&#34;&#92;&#34;&nbsp;&nbsp;Update your company details.</h3></div>
         </div>
 
         <div data-role="popup" data-theme="o" data-overlay-theme="a" id="nuevo_cliente" class="ui-content datos color">
@@ -120,7 +118,7 @@
         <div data-role="popup" data-theme="o" data-overlay-theme="a" id="nuevobill" class="ui-content datos color">
             <div class="ui-content datos color">
                 <h2 id="titulobill">Bill</h2>
-                <p><span>Invoice:</span><span id="numerobill" class="margen"></span></p>
+                <p><span>No:</span><span id="numerobill" class="margen"></span></p>
                 <p><span>Date</span><span id="fechabill" class="margen"></span></p>
 
                 <form id="form_bill" name="formobill">

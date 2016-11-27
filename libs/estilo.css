@@ -46,6 +46,7 @@ h2{
     width: 42px;
     z-index: 2;
 }
+
 .pos{
     position: absolute;
     bottom: 26%;
@@ -54,7 +55,7 @@ h2{
 .logo{
     padding: 0;
     text-align: center;
-    width: 96%;
+    width: 98%;
     margin: auto;
     border-radius: 6px 6px;
     box-shadow: 4px 4px 10px #888888;

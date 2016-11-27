@@ -45,6 +45,9 @@ window.onload = function () {
 				status.animate({ opacity: "1" });
 				setTimeout(function () { status.animate({ opacity: '0' }); }, 3000);
 				window.console.log(msg);
+				if(rotulo) {
+					rotulo.text(msg);
+				}
 		}
 	}
 
@@ -93,13 +96,13 @@ window.onload = function () {
 		return n;
 	}
 
-	function edit(data) {
+	function edit(data, titu) {
 		var z;
 
 		if (data) {
 			panel.panel('close');
 			clear(forms);
-			titulo.text("Update " + data[empresa[1]]);
+			titulo.text(titu);
 			for (z in empresa) {
 				if (empresa.hasOwnProperty(z)) {
 					if (data[empresa[z]]) {
@@ -114,7 +117,7 @@ window.onload = function () {
 	function bill() {
 		var n;
 
-		titulobill.text(paneltitulo.text());
+		titulobill.text("Invoice to: " + paneltitulo.text());
 
 		n = "000000" + getBill(titulobill.text());
 		numerobill.text(n);
@@ -131,57 +134,68 @@ window.onload = function () {
 	function newcli(){
 		clear(forms);
 
+		$('#logo').hide();
 		if (paneltitulo.text() === "Thoomic") {
-
 			loadDB();
 			titulo.text("New Client");
 			rotulo.text("Add customer data.");
 			popup_nuevo_cliente.popup('open', { positionTo: "window", transition: "pop" });
-
 		} else {
-			titulo.text("New Bill");
 			rotulo.text("Add Invoice");
 			bill();
 		}
 	}
 
 	function getSetup() {
-		var z, mydata = [];
+		var z, mydata = {};
 
 		for (z in empresa) {
 			if (empresa.hasOwnProperty(z)) {
-				mydata.push(localStorage.getItem(empresa[z]));
+				mydata[empresa[z]] = localStorage.getItem(empresa[z]);
 			}
 		}
 
 		return mydata;
 	}
 
+	function cleaner() {
+		panel.panel('close');
+		lista.empty();
+		lista.removeClass('datos');
+		$('#textologo').empty();
+		$('hori').empty();
+		clearTimeout(timer);
+	}
+
 	function carga(data) {
 		var z, logo = $('#textologo');
 
-		panel.panel('close');
-		lista.empty();
-		logo.empty();
-		clearTimeout(timer);
+		cleaner();
 
-		if(data.name) {
-			$("<a href='#' class='ui-btn ui-btn-inline ui-icon-gear ui-btn-icon-left ui-mini ui-corner-all' id='up'>").append("toname").appendTo($('#hori'));
-			$("<a href='#' class='ui-btn ui-btn-inline ui-icon-grid ui-btn-icon-left ui-mini ui-corner-all color' id='bill'>").append("toBill").appendTo($('#hori'));
-			$("<div>").append("<span>&nbsp;&nbsp;&nbsp;" + data.cif + "</span><span>&nbsp;&nbsp;&nbsp;Tel: " + data.telefono + "</span><span>&nbsp;&nbsp;&nbsp;" + (data.email || '') + "</span><p>").appendTo(logo);
-			$("<div class='margen'>").append("<a href='#' id='loc' data-mini='true' class='ui-btn ui-mini ui-icon-home ui-btn-icon-left ui-btn-inline ui-corner-all'>" + (data.domicilio || '') + "</a>").appendTo(logo);
-
-			$("<div>").append("</span><span>&nbsp;&nbsp;&nbsp;" + (data.cp || '') + "</span><span>&nbsp;&nbsp;&nbsp;" + (data.poblacion || 'Location') + "</span><span>&nbsp;&nbsp;&nbsp;" + (data.pais || '') + "</span><p>").appendTo(logo);
-
+		if(paneltitulo.text() === "Thoomic") {
+			$("<a href='#' class='ui-btn ui-btn-inline ui-icon-grid ui-btn-icon-left ui-mini ui-corner-all color' id='bill'>").append("toBill").appendTo(logo);
+			$('#bill').click(function() {
+				bills(data.name);
+			});
 		} else {
-			$("<div>").append("<h1 style='text-align: left';>&nbsp;&nbsp;No details of your company, please complete it!.</h1>").appendTo(logo);
+
+			data.domicilio = localStorage.getItem('domicilio');
+			data.cp = localStorage.getItem('cp');
+			data.poblacion = localStorage.getItem('poblacion');
+			data.pais = localStorage.getItem('pais');
 		}
 
-		$('#update').text(data.name);
+		$("<a href='#' class='ui-btn ui-btn-inline ui-icon-gear ui-btn-icon-left ui-mini ui-corner-all' id='up'>").append((data.name || 'Your company')).appendTo(logo);
+		$("<div>").append("<span>&nbsp;&nbsp;&nbsp;" + data.cif + "</span><span>&nbsp;&nbsp;&nbsp;Tel: " + data.telefono + "</span><span>&nbsp;&nbsp;&nbsp;" + (data.email || '') + "</span><p>").appendTo(logo);
+		$("<div class='margen'>").append("<a href='#' id='loc' data-mini='true' class='ui-btn ui-mini ui-icon-home ui-btn-icon-left ui-btn-inline ui-corner-all'>Location</a>").appendTo(logo);
+		$("<div>").append("</span><span>&nbsp;&nbsp;&nbsp;" + (data.domicilio || '')).appendTo(logo);
+		$("<div>").append("</span><span>&nbsp;&nbsp;&nbsp;" + (data.cp || '') + "</span><span>&nbsp;&nbsp;&nbsp;" + (data.poblacion || '') + "</span><span>&nbsp;&nbsp;&nbsp;" + (data.pais || '') + "</span><p>").appendTo(logo);
 
+		$('#update').text(data.name);
 		$('#up').click(function() {
 			edit(data);
 		});
+
 		$('#loc').click(function() {
 			domicilio.val(data.domicilio);
 			cp.val(data.cp);
@@ -196,14 +210,16 @@ window.onload = function () {
 
 	function mysetup() {
 		var datos;
-
+		lista.removeClass('datos');
+		clearTimeout(timer);
 		clear(forms);
+		rotulo.text("Complete your company details.");
 		titulo.text("Invoice Issuer");
 		datos = getSetup();
+		paneltitulo.text(datos.name);
 
-		if (datos) {
-			carga(datos);
-		} else {
+		carga(datos);
+		if (!datos.name) {
 			popup_nuevo_cliente.popup('open', {positionTo: "window", transition: "pop"});
 		}
 	}
@@ -237,10 +253,14 @@ window.onload = function () {
 	}
 
 	function refreshBill(datos) {
-		var id, suma, respuesta = [], formo = document.getElementById('#form_update'), tax = $('#tax'), sel = $('#sel');
+		var id, suma, res = [], formo = document.getElementById('#form_update'), tax = $('#tax'), sel = $('#sel');
 
 		if(typeof datos == 'string' && vector.length < 1) {
 			rotulo.text("There is no data in database, please add invoices.");
+			$('#textologo').empty();
+			$('#hori').empty();
+			$('<div>').append("<p class='margen' style='color: red;'>There are no invoices in the database, please write them.</p>").appendTo('#textologo');
+			$('#logo').show();
 		} else {
 			$("<li>").append("<a href='#' id=" + datos.name + "><h3>" + datos.titulo + "</h3><p>Date: " + datos.fecha + "&nbsp;&nbsp;&nbsp;&nbsp;Bill Nº: " + datos.name + "&nbsp;&nbsp;&nbsp;&nbsp;</p></a>").appendTo(lista);
 
@@ -295,9 +315,9 @@ window.onload = function () {
 					MYPDF.date(datos.fecha);
 					MYPDF.fac(datos.name);
 
-					respuesta = getSetup();
-					if (respuesta[1]) {
-						MYPDF.setup(respuesta);
+					res = getSetup();
+					if (res[1]) {
+						MYPDF.setup(res);
 						$('#comments').val('');
 						mytax = localStorage.getItem('tax');
 						if(mytax > 0) {
@@ -321,12 +341,17 @@ window.onload = function () {
 	}
 
 	function bills(data) {
+		panel.panel('close');
+		lista.empty();
+		lista.removeClass('datos');
+
+		$('logo').empty();
 		if (data) {
+			rotulo.text("Invoice to: " + data);
 			var consbill = {NAME: data, VERSION: 1};
-			paneltitulo.text(data);
-			panel.panel('close');
-			lista.empty();
 			openDB.odb.open(consbill, null, refreshBill, 'read');
+			paneltitulo.text(data);
+			newcli();
 		}
 	}
 
@@ -397,9 +422,15 @@ window.onload = function () {
 		var id, token, z;
 
 		$('#logo').hide();
+		lista.addClass('datos');
+
 		if(typeof datos == 'string' && clientDB.length <1) {
-			texto(datos);
+			$('#textologo').empty();
 			rotulo.text("There is no data in database, please add new client.");
+			$('<div>').append("<p class='margen' style='color: red;'>There are no clients in the database, please write them.</p>").appendTo('#textologo');
+			$('#logo').show();
+			lista.removeClass('datos');
+
 		} else {
 			if(typeof datos != 'string') {
 				clientDB.push(datos);
@@ -427,13 +458,13 @@ window.onload = function () {
 							}
 						}
 					}
-					
+
 					$('#cif').click(function (event) {
 						bills(datos[empresa[1]]);
-						rotulo.text("Add your invoices.");
 					});
 
 					$('#name').click(function (event) {
+						titulo.text(datos.name);
 						carga(datos);
 					});
 
@@ -450,7 +481,7 @@ window.onload = function () {
 		paneltitulo.text("Thoomic");
 		lista.empty();
 		filter.focus();
-
+		rotulo.text("Customer database, add new clients.")
 		clientDB = [];
 		openDB.odb.open(cons, "", refreshClientes, 'read');
 	}
@@ -485,7 +516,7 @@ window.onload = function () {
 		}
 	}
 
-	function save_client() {
+	function saveCli() {
 		var z, objeto = {}, cif = $('#id_cif'), nombre = $('#id_nombre'), telefono = $('#id_telefono'), email = $('#id_email');
 
 		if (/^(\+\d{2,3}\s)*\d{9,10}$/.test(telefono.val())) {
@@ -564,17 +595,17 @@ window.onload = function () {
 		} else {
 			checkInput(pais);
 		}
-		texto($('#update').text());
+
 		popup_address.popup('close');
-		if ($('#update').text() === 'Invoice Issuer') {
+		if (paneltitulo.text() === 'Thoomic') {
+			openDB.odb.open(cons, objeto, texto, 'update');
+			loadDB();
+		} else {
 			localStorage.setItem('domicilio', objeto.domicilio);
 			localStorage.setItem('cp', objeto.cp);
 			localStorage.setItem('poblacion', objeto.poblacion);
 			localStorage.setItem('pais', objeto.pais);
-			carga(objeto);
-		} else {
-			openDB.odb.open(cons, objeto, texto, 'update');
-			loadDB();
+			mysetup();
 		}
 	}
 
@@ -643,7 +674,7 @@ window.onload = function () {
 		document.getElementById('selectfile').addEventListener('change', importData, false);
 		document.getElementById('nuevo_cliente').addEventListener('keydown', function(event) {
 			if (event.keyCode === 13) {
-				save_client();
+				saveCli();
 			}
 		});
 		document.getElementById('nuevo_cliente').addEventListener('keydown', function(event) {
@@ -675,16 +706,10 @@ window.onload = function () {
 			rotulo.text("Imports the customer data file.");
 
 		});
-		btn_import.hover(function () {
-			rotulo.text("Imports the customer data file.");
-		});
 
 		btn_export.click(function () {
 			rotulo.text("Exports customer database.");
 			exportdata();
-		});
-		btn_export.hover(function () {
-			rotulo.text("Exports customer database.");
 		});
 
 		btn_nuevo.click(function () {
@@ -698,12 +723,9 @@ window.onload = function () {
 			}
 
 		});
-		lista.hover(function () {
-			rotulo.text("Export your customer database.");
-		});
 
 		btn_save.click(function () {
-			save_client();
+			saveCli();
 		});
 
 		btn_delete.click(function () {
@@ -722,11 +744,7 @@ window.onload = function () {
 			delDB();
 		});
 		btn_menu.click(function() {
-			rotulo.text("Update your company details.");
 			mysetup();
-		});
-		btn_menu.hover(function() {
-			rotulo.text("Update your company details.");
 		});
 
 	}
