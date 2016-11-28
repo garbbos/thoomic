@@ -5,17 +5,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="mobile-web-app-capable" content="yes">
-
     <script type="text/javascript" src="libs/jquery.min.js"></script>
     <script type="text/javascript" src="libs/jquery.mobile.min.js"></script>
     <link rel="stylesheet" type="text/css" href="libs/jquery.mobile-1.4.5.min.css">
     <link rel="stylesheet" type="text/css" href="libs/estilo.css">
     <script type="text/javascript" src="libs/app.js" defer></script>
-    <script type="text/javascript" src="libs/openDB.js" defer></script>
+    <script type="text/javascript" src="libs/openDB.min.js" defer></script>
     <script type="application/javascript" src="libs/FileSaver.min.js" defer></script>
     <script type="text/javascript" src="libs/jspdf.js" defer></script>
     <script src="libs/jspdf.plugin.standard_fonts_metrics.js" defer></script>
-    <script type="text/javascript" src="libs/MyPdf.js" defer></script>
+    <script type="text/javascript" src="libs/MyPdf.min.js" defer></script>
     <link rel="icon" type="image/png" href="img/favicon.ico">
 </head>
 <body>
@@ -23,7 +22,7 @@
         <div data-role="header" class="ui-shadow color">
             <div data-role="navbar">
                     <ul>
-                        <li><a href="#setup" id="menu" data-rel="popup" data-transition="pop" data-position-to="window" class="color">
+                        <li><a href="#" id="menu" class="color">
                             <svg width="48" height="48" xmlns="http://www.w3.org/2000/svg" version="1.1">
                             <circle cx="24" cy="24" r="22" stroke="#474747" stroke-width="1" fill="#ffdf4a" />
                             <g stroke="#474747" stroke-width="3" fill="none">
@@ -33,7 +32,7 @@
                             </g>
                         </svg>
                         </a></li>
-                        <li><a href="#readfile" id="import" data-rel="popup" data-transition="pop" data-position-to="window" class="color">
+                        <li><a href="#readfile" data-rel="popup" data-position-to="window" data-transition="pop" id="imfile" class="color">
                             <svg width="48" height="48" xmlns="http://www.w3.org/2000/svg" version="1.1">
                                 <circle cx="24" cy="24" r="22" stroke="#474747" stroke-width="1" fill="#ffdf4a" />
                                 <g stroke="#474747" stroke-width="3" fill="none">
@@ -66,7 +65,6 @@
                     </ul>
             </div>
         </div>
-
         <div data-role="main" id="principal" class="ui-content">
             <div class="rotulo">
                 <h1 id="rotulo" class="margen">Make your Invoices & Export to PDF!!</h1>
@@ -75,66 +73,48 @@
                 <input id="myFilter" data-type="search" placeholder="Search...">
             </form>
             <ul id="lista" class="" data-role="listview" data-filter="true" data-input="#myFilter" data-inset="true">
-
             </ul>
             <div class="logo datos" id="logo">
                 <img src="img/thoomic.svg" alt="Logo Thoomic.com"/>
-
                 <div id="textologo" style="text-align: left;"><h3>&nbsp;&nbsp;&#34;&#43;&#34;&nbsp;&nbsp;Save new customer data.</h3><h3>&nbsp;&nbsp;&#34;&#92;&#34;&nbsp;&nbsp;Update your company details.</h3></div>
             </div>
         </div>
-
         <div data-role="popup" data-theme="o" data-overlay-theme="a" id="nuevo_cliente" class="ui-content datos color">
             <h2 id="titulo_nuevo">New Client</h2>
             <form id="form_datos" name="formo">
-                    <label id="lblcif" for="id_cif">Reference</label>
                     <input class="myconf" id="id_cif" type="text" name="cif" placeholder="Reference *" autofocus>
-                    <label id="lblnombre" for="id_nombre">Name</label>
                     <input class="myconf" id="id_nombre" type="text" name="nombre" placeholder="Name *">
-                    <label id="lbltelefono" for="id_telefono">Phone</label>
                     <input class="myconf" id="id_telefono" type="tel" name="telefono" placeholder="Phone *">
-                    <label id="lblemail" for="id_email">Email</label>
                     <input class="myconf" id="id_email" type="email" name="email" placeholder="Email">
             </form>
             <p id="texto_new" class="red"></p>
-            <a href="#" data-role="button" id="btn_save" data-mini="true" class="ui-btn ui-icon-check ui-btn-icon-left ui-btn-inline ui-corner-all ui-shadow color">Save</a>
+            <a href="#" data-role="button" id="btn_save" data-mini="true" class="ui-btn ui-mini ui-icon-check ui-btn-icon-left ui-btn-inline ui-corner-all ui-shadow color">Save</a>
         </div>
-
         <div data-role="popup" data-theme="o" data-overlay-theme="a" id="address" class="ui-content datos color">
               <h2 id="update">Complete Address</h2>
               <form id="form_update" name="formo_update">
-                    <label id="lbldomicilio" for="domicilio">Address</label>
                     <input class="myconf" id="domicilio" type="text" name="domicilio" placeholder="Address">
-                    <label id="lblcp" for="cp">Postal Code</label>
                     <input class="myconf" id="cp" type="text" name="cp" placeholder="Postal Code">
-                    <label id="lblpoblacion" for="poblacion">City</label>
                     <input class="myconf" id="poblacion" type="text" name="poblacion" placeholder="City">
-                    <label id="lblpais" for="pais">Country</label>
                     <input class="myconf" id="pais" type="text" name="pais" placeholder="Country">
               </form>
-              <a href="#" data-role="button" data-mini="true" id="bsave" class="ui-btn ui-icon-check ui-btn-icon-left ui-btn-inline ui-corner-all ui-shadow color">Save</a>
+              <a href="#" data-role="button" data-mini="true" id="bsave" class="ui-btn ui-mini ui-icon-check ui-btn-icon-left ui-btn-inline ui-corner-all ui-shadow color">Save</a>
         </div>
-
         <div data-role="popup" data-theme="o" data-overlay-theme="a" id="nuevobill" class="ui-content datos color">
             <div class="ui-content datos color">
                 <h2 id="titulobill">Bill</h2>
                 <p><span>No:</span><span id="numerobill" class="margen"></span></p>
                 <p><span>Date</span><span id="fechabill" class="margen"></span></p>
-
                 <form id="form_bill" name="formobill">
-                    <label id="labelconcepto" for="concepto">Concept</label>
                     <input id="concepto" type="text" name="concepto" placeholder="Concept...">
-                    <label for="cantidad">Items</label>
                     <input id="cantidad" type="number" name="cantidad" placeholder="Items">
-                    <label for="precio">Price</label>
                     <input id="precio" type="number" name="precio" placeholder="Unit price">
                 </form>
                 <p id="texto_concepto" class="red"></p>
             </div>
-            <a href="#" data-rel="" id="btn_save_bill" class="ui-btn ui-icon-check ui-btn-icon-left ui-btn-inline ui-corner-all ui-shadow color">ToBill</a>
-            <a href="#" data-rel="" id="btn_next_bill" class="ui-btn ui-icon-plus ui-btn-icon-left ui-btn-inline ui-corner-all ui-shadow color">More</a>
+            <a href="#" data-rel="" id="btn_save_bill" class="ui-btn ui-mini ui-icon-check ui-btn-icon-left ui-btn-inline ui-corner-all ui-shadow color">ToBill</a>
+            <a href="#" data-rel="" id="btn_next_bill" class="ui-btn ui-mini ui-icon-plus ui-btn-icon-left ui-btn-inline ui-corner-all ui-shadow color">More</a>
         </div>
-
         <div data-role="popup" id="readfile" data-theme="o" data-overlay-theme="a" class="ui-content datos color">
             <div class="ui-content datos color">
                 <h2 id="titulofile">Import Database</h2>
@@ -143,7 +123,6 @@
                 </form>
             </div>
         </div>
-
         <div data-role="popup" data-theme="o" data-overlay-theme="a" id="genpdf" class="ui-content datos color">
             <div class="ui-content datos color">
                 <h2 id="tituloPDF">Setup Invoice</h2>
@@ -152,9 +131,7 @@
                     <input id="comments" type="text" name="comment" placeholder="Comments...">
                     <label id="lbltax" for="tax">% Tax</label>
                     <input class="myconf" id="tax" type="number" name="tax" placeholder="% TAX">
-                    <label id="lblsel" for="sel">Currency</label>
                     <fieldset data-theme="e" data-role="controlgroup" data-type="horizontal" data-mini="true">
-
                         <select id="sel" class="sel" name="sel">
                             <option value="euro">&euro;</option>
                             <option value="dollar">&dollar;</option>
@@ -175,16 +152,14 @@
                 </svg>
             </a>
         </div>
-
         <div id="status" class="status ui-body-g ui-corner-all ui-shadow">
             <p id="msg" class="msg"></p>
         </div>
-
         <div data-role="popup" id="popup_delete" data-theme="o" data-overlay-theme="a" class="ui-content datos color">
             <h2 id="deltitulo">Deleting...</h2>
-            <a href="#" id="btn_popup_delete" data-rel="back" class="ui-btn ui-corner-all ui-icon-alert ui-btn-icon-left ui-shadow color">Are you sure?</a>
+            <h4 id="clave"></h4>
+            <a href="#" id="btn_popup_delete" data-rel="back" class="ui-btn ui-mini ui-corner-all ui-icon-alert ui-btn-icon-left ui-shadow color">Are you sure?</a>
         </div>
-
         <div data-role="panel" data-theme="o" data-display="overlay" id="panel" class="ui-content color">
             <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-icon-delete ui-btn-icon-notext ui-btn-right color"></a>
             <h2 id="panel_titulo">Thoomic</h2>
@@ -193,7 +168,6 @@
                    </ul>
                    <a href="#" data-rel="" id="deleteID" class="ui-btn ui-icon-delete ui-btn-icon-left ui-corner-all ui-shadow color">Delete</a>
              </div>
-
              <div class="ui-content">
                 <a href="http://www.thoomic.com"><p class="red"> &copy;2016 Thoomic.com</p></a>
              </div>

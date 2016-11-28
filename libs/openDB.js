@@ -109,6 +109,9 @@ var openDB = (function () {
 						store.put(record).onsuccess = function (e) {
 							callback("OpenDB: Updating " + record.name + " customer data." );
 						};
+						store.put(record).onerror = function (e) {
+								callback("OpenDB: Failure updating " + record.name);
+						};
 					}
 				};
 
