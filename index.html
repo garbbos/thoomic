@@ -14,7 +14,7 @@
     <script type="application/javascript" src="libs/FileSaver.min.js" defer></script>
     <script type="text/javascript" src="libs/jspdf.js" defer></script>
     <script src="libs/jspdf.plugin.standard_fonts_metrics.js" defer></script>
-    <script type="text/javascript" src="libs/MyPdf.min.js" defer></script>
+    <script type="text/javascript" src="libs/MyPdf.js" defer></script>
     <link rel="icon" type="image/png" href="img/favicon.ico">
 </head>
 <body>
@@ -131,14 +131,6 @@
                     <input id="comments" type="text" name="comment" placeholder="Comments...">
                     <label id="lbltax" for="tax">% Tax</label>
                     <input class="myconf" id="tax" type="number" name="tax" placeholder="% TAX">
-                    <fieldset data-theme="e" data-role="controlgroup" data-type="horizontal" data-mini="true">
-                        <select id="sel" class="sel" name="sel">
-                            <option value="euro">&euro;</option>
-                            <option value="dollar">&dollar;</option>
-                            <option value="libra">&pound;</option>
-                            <option value="yen">&yen;</option>
-                        </select>
-                    </fieldset>
                 </form>
                 <a href="#" data-rel="" id="btn_generating" class="ui-btn ui-icon-check ui-btn-icon-left ui-btn-inline ui-corner-all ui-shadow color">Generate PDF</a>
             </div>
@@ -151,6 +143,9 @@
                     <path d="M24 13 L24 35" stroke="#474747" stroke-width="4" fill="none"/>
                 </svg>
             </a>
+        </div>
+        <div class="btn_cur">
+
         </div>
         <div id="status" class="status ui-body-g ui-corner-all ui-shadow">
             <p id="msg" class="msg"></p>
@@ -166,7 +161,18 @@
              <div id="data" class="data">
                    <ul data-role="listview" id="datapanel" data-inset="true" class="color">
                    </ul>
-                   <a href="#" data-rel="" id="deleteID" class="ui-btn ui-icon-delete ui-btn-icon-left ui-corner-all ui-shadow color">Delete</a>
+                   <form class="ui-field-contain">
+                       <fieldset data-role="controlgroup" data-type="horizontal">
+                           <select name="currency" id="currency" data-mini="true">
+                               <option value="euro">&euro;</option>
+                               <option value="dollar">&#36;</option>
+                               <option value="yen">&#165;</option>
+                               <option value="libra">&#163;</option>
+                           </select>
+                       </fieldset>
+                   </form>
+                   <a href="#" data-rel="" id="deleteID" class="ui-btn ui-icon-delete ui-mini ui-btn-icon-left ui-corner-all ui-shadow color">Delete</a>
+
              </div>
              <div class="ui-content">
                 <a href="http://www.thoomic.com"><p class="red"> &copy;2016 Thoomic.com</p></a>

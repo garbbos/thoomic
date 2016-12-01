@@ -15,6 +15,7 @@ window.onload = function () {
 		valido = true,
 		timer,
 		forms = document.getElementById("form_datos"),
+        currency = document.getElementById('currency'),
 		panel = $('#panel'),
 		btn_delete = $('#deleteID'),
 		popup_nuevo_cliente = $('#nuevo_cliente'),
@@ -61,6 +62,11 @@ window.onload = function () {
 				mydata[empresa[z]] = localStorage.getItem(empresa[z]);
 			}
 		}
+        mydata.domicilio = localStorage.getItem("domicilio");
+        mydata.cp = localStorage.getItem("cp");
+        mydata.poblacion = localStorage.getItem("poblacion");
+        mydata.pais = localStorage.getItem("pais");
+
 		return mydata;
 	}
 
@@ -197,7 +203,7 @@ window.onload = function () {
 		}
 	}
 
-    var refreshClientes = function (datos) {
+    var reclients = function (datos) {
 		var z, id, token;
 
 		$('#logo').hide();
@@ -211,7 +217,7 @@ window.onload = function () {
 			lista.removeClass('datos');
 		} else {
 			if (typeof datos !== 'string') {
-
+                $('#currency').val(localStorage.getItem('currency')).change();
 				clientDB.push(datos);
 				token = datos[empresa[1]].split('.', 1).toString();
 
@@ -226,12 +232,12 @@ window.onload = function () {
 						if (datos.hasOwnProperty(z)) {
 							if (datos[z]) {
 								if (z === "cif") {
-									$("<li>").append("<a href='#' class='color' id=" + z + ">" + datos[z] + "</a>").appendTo(listapanel);
+									$("<li>").append("<a href='#' class='color ui-mini' id=" + z + ">" + datos[z] + "</a>").appendTo(listapanel);
 								} else {
 									if (z === "name") {
-										$("<li>").append("<a href='#' class='color' id=" + z + ">" + datos[z] + "</a>").appendTo(listapanel);
+										$("<li>").append("<a href='#' class='color ui-mini' id=" + z + ">" + datos[z] + "</a>").appendTo(listapanel);
 									} else {
-										$("<li class='color'>").append("<span>" + datos[z] + "</span>").appendTo(listapanel);
+										$("<li class='color ui-mini'>").append("<span>" + datos[z] + "</span>").appendTo(listapanel);
 									}
 								}
 							}
@@ -263,7 +269,7 @@ window.onload = function () {
 		filter.focus();
 		rotulo.text("Customer database, add new clients.");
 		clientDB = [];
-		openDB.odb.open(cons, "", refreshClientes, 'read');
+		openDB.odb.open(cons, "", reclients, 'read');
 	}
 
 	function newcli() {
@@ -313,8 +319,73 @@ window.onload = function () {
 		popup_delete.popup('open', { positionTo: "window", transition: "pop" });
 	}
 
+    function reBill(datos) {
+        var id, idfac, suma, res = [], formo = document.getElementById('#form_update'), tax = $('#tax');
+
+        if ((typeof datos === 'string') && (facturas.length < 1)) {
+            $('#textologo').empty();
+			$('#hori').empty();
+			$('<div>').append("<p class='margen' style='color: red;'>There are no invoices in the database, please write them.</p>").appendTo('#textologo');
+			$('#logo').show();
+            newcli();
+        } else {
+            lista.addClass('datos');
+            if (typeof datos !== 'string') {
+                $("<li>").append("<a href='#' id=" + datos.name + "><h3>" + datos.titulo + "</h3><p>Date: " + datos.fecha + "&nbsp;&nbsp;&nbsp;&nbsp;Bill Nº: " + datos.name + "&nbsp;&nbsp;&nbsp;&nbsp;</p></a>").appendTo(lista);
+
+                facturas.push(datos);
+    			id = "#" + datos.name;
+
+                $(id).click(function (event) {
+    				var z, x;
+
+                    MYPDF.init();
+    				openDB.odb.open(cons, datos.titulo, MYPDF.client, 'get');
+    				event.stopPropagation();
+    				listapanel.empty();
+
+                    titulobill.text(datos.titulo);
+                    $('#clave').text(datos.name);
+
+                    texto(JSON.stringify(datos));
+                    $("<li>").append("<a href='#' class='color ui-mini' id='name'>No. " + datos.name + "</a>").appendTo(listapanel);
+                    $("<li class='color ui-mini'>").append("<span>" + datos.fecha + "</span>").appendTo(listapanel);
+                    idfac = "#name";
+
+                    for(z in datos) {
+                        if (datos.hasOwnProperty(z)) {
+                            if ((z !== 'titulo') && (z !== 'name') && (z !== 'fecha') && (z !== 'currency')) {
+                                $("<li class='color ui-mini'>").append("<span>  " + datos[z].cantidad + "</span><span class='cantidad'>&nbsp;" + datos[z].concepto + "</span><span>&nbsp;&nbsp;&nbsp;" + datos[z].precio + " " + datos.currency + "</span>").appendTo(listapanel);
+                                MYPDF.bill(datos[z].concepto, datos[z].cantidad, datos[z].precio);
+                            }
+                        }
+                    }
+
+    				listapanel.listview('refresh');
+    				panel.panel('open');
+                });
+                $(idfac).click(function (event) {
+                    panel.popup('close');
+                });
+
+                $('#btn_generating').click(function (event) {
+                    var mytax = 21;
+                    if (tax.val()) {
+                        mytax = tax.val();
+                    }
+                    localStorage.setItem('tax', mytax);
+                    MYPDF.save($('#comments').val());
+
+                    $('#genpdf').popup('close');
+                });
+
+            lista.listview('refresh');
+        }
+    }
+}
+
 	function refreshBill(datos) {
-		var id, suma, res = [], formo = document.getElementById('#form_update'), tax = $('#tax'), sel = $('#sel');
+		var id, suma, mytax = (localStorage.getItem('tax')|| 21), res = [], formo = document.getElementById('#form_update'), tax = $('#tax');
 
 		if ((typeof datos === 'string') && (facturas.length < 1)) {
 			$('#textologo').empty();
@@ -333,62 +404,55 @@ window.onload = function () {
     			id = "#" + datos.name;
 
     			$(id).click(function (event) {
-    				var z, x, idfac;
+    				var z, x;
     				event.stopPropagation();
     				listapanel.empty();
 
     				MYPDF.init();
     				openDB.odb.open(cons, datos.titulo, MYPDF.client, 'get');
-    				for (z in datos) {
-    					if (datos.hasOwnProperty(z)) {
 
-    						if (z != "titulo") {
-    							if (z === "name") {
-    								idfac = "#fac" + datos[z];
-    								$("<li>").append("<a href='#' class='color' id=fac" + datos[z] + ">Nº " + datos[z] + "</a>").appendTo(listapanel);
-    							} else {
-    								if (z === "fecha") {
-    									$("<li class='color'>").append("<span>" + datos[z] + "</span>").appendTo(listapanel);
-    								} else {
-    									for (x in datos[z]) {
-    										if (datos[z].hasOwnProperty(x) && (x === "concepto")) {
-    											suma = datos[z].cantidad * datos[z].precio;
-    											$("<li class='color'>").append("<span class='cantidad'>" + datos[z].cantidad + "</span><span>&nbsp;" + datos[z][x] + "</span><span>&nbsp;&nbsp;&nbsp;" + suma + "&#8364;</span>").appendTo(listapanel);
-    											MYPDF.bill(datos[z].concepto, datos[z].cantidad, datos[z].precio);
-    										}
-    									}
-    								}
-    							}
-    						}
-    					}
-    				}
+                    titulobill.text(datos.titulo);
+                    $('#clave').text(datos.name);
+                    $("<li>").append("<a href='#' class='color ui-mini' id='name'>No. " + datos.name + "</a>").appendTo(listapanel);
+                    $("<li class='color ui-mini'>").append("<span>" + datos.fecha + "</span>").appendTo(listapanel);
+
+                    for(z in datos) {
+                        if (datos.hasOwnProperty(z)) {
+                            if ((z !== 'titulo') && (z !== 'name') && (z !== 'fecha') && (z !== 'currency')) {
+                                $("<li class='color ui-mini'>").append("<span>  " + datos[z].cantidad + "</span><span class='cantidad'>&nbsp;" + datos[z].concepto + "</span><span>&nbsp;&nbsp;&nbsp;" + datos[z].precio + " " + datos.currency + "</span>").appendTo(listapanel);
+                                MYPDF.bill(datos[z].concepto, datos[z].cantidad, datos[z].precio);
+                            }
+                        }
+                    }
 
     				$('#btn_generating').click(function (event) {
-    					var mytax = 21;
-    					if (tax.val()) {
-    						mytax = tax.val();
-    					}
-    					localStorage.setItem('tax', mytax);
-    					MYPDF.save($('#comments').val(), mytax, sel.val());
+    					MYPDF.save($('#comments').val());
 
     					$('#genpdf').popup('close');
     				});
 
-    				$(idfac).click(function (event) {
+    				$('#name').click(function (event) {
     					panel.panel('close');
+                        if (tax.val()) {
+    						mytax = tax.val();
+    					}
     					MYPDF.name(datos.titulo);
     					MYPDF.date(datos.fecha);
     					MYPDF.fac(datos.name);
 
+                        MYPDF.tax(mytax);
+
     					res = getSetup();
-    					if (res[1]) {
+                        texto(JSON.stringify(res));
+
+    					if (res.name) {
     						MYPDF.setup(res);
     						$('#comments').val('');
-    						mytax = localStorage.getItem('tax');
+
     						if (mytax > 0) {
-    							tax.val(parseInt(mytax));
+    							tax.val(mytax);
     						} else {
-    							tax.val('');
+    							tax.val(21);
     						}
 
     						$('#genpdf').popup('open', { positionTo: "window", transition: "pop" });
@@ -469,6 +533,9 @@ window.onload = function () {
 		fac.titulo = titulobill.text();
 		fac.name = numerobill.text() + fac.titulo.substring(0, 1);
 		fac.fecha = fechabill.text();
+        fac.currency = $('#currency option:selected').text();
+        localStorage.setItem("currency", $('#currency option:selected').val());
+        texto(fac.currency);
 
 		if (nextbill()) {
 			for (z in vector) {

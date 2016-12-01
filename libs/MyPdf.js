@@ -1,7 +1,7 @@
 /*jshint -W055 */
 var MYPDF = (function () {
     'use strict';
-    var doc, mypdf = {}, x, y, total, iva, subtotal, nombre, nfac, a;
+    var doc, mypdf = {}, x, y, total, iva, mytax, subtotal, nombre, nfac, a;
 
     function check(data) {
         if (data) {
@@ -14,7 +14,7 @@ var MYPDF = (function () {
     function totales(data) {
         var totalbill = 0, espacios = 0;
 
-        iva = (subtotal * 0.21);
+        iva = (subtotal * (mytax / 100));
         totalbill = subtotal + iva;
         doc.setFontSize(11);
 
@@ -22,7 +22,7 @@ var MYPDF = (function () {
         doc.text(122, 259, "Subtotal ");
         doc.text(espacios, 259, (subtotal.toFixed(2).toString()));
 
-        doc.text(122, 264, "Tax: 21%");
+        doc.text(122, 264, "Tax: " + (mytax) + "%");
         espacios = ((181 - (iva.toFixed(2).toString().length)));
         doc.text(espacios, 264, (iva.toFixed(2).toString()));
         doc.line(168, 268, 190, 268);
@@ -42,9 +42,16 @@ var MYPDF = (function () {
         doc.text("@2016 Thoomic WebApp.", 40, 293);
     }
 
+    mypdf.tax = function (data) {
+        if (typeof data === 'number' && data) {
+            mytax = data;
+            console.log(mytax);
+        }
+    };
+
     mypdf.init = function () {
         doc = new jsPDF();
-
+        mytax = 21;
         x = 20;
         y = 24;
         total = 0;
