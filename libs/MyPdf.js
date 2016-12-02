@@ -1,7 +1,7 @@
 /*jshint -W055 */
 var MYPDF = (function () {
     'use strict';
-    var doc, mypdf = {}, x, y, total, iva, mytax, subtotal, nombre, nfac, a;
+    var doc, mypdf = {}, x, y, total, iva, mytax, subtotal, nombre, nfac, a, moneda;
 
     function check(data) {
         if (data) {
@@ -20,17 +20,16 @@ var MYPDF = (function () {
 
         espacios = (180 - (subtotal.toFixed(2).toString().length));
         doc.text(122, 259, "Subtotal ");
-        doc.text(espacios, 259, (subtotal.toFixed(2).toString()));
+        doc.text(espacios, 259, (subtotal.toFixed(2).toString() + moneda));
 
         doc.text(122, 264, "Tax: " + (mytax) + "%");
         espacios = ((181 - (iva.toFixed(2).toString().length)));
-        doc.text(espacios, 264, (iva.toFixed(2).toString()));
+        doc.text(espacios, 264, (iva.toFixed(2).toString()) + moneda);
         doc.line(168, 268, 190, 268);
         doc.text(122, 276, "TOTAL");
 
         espacios = (180 - (totalbill.toFixed(2).toString().length));
-
-        doc.text(espacios, 276, (totalbill.toFixed(2).toString()));
+        doc.text(espacios, 276, (totalbill.toFixed(2).toString()) + moneda);
 
         doc.setFontSize(10);
         doc.rect(20, 120, 170, 130); // empty square
@@ -39,19 +38,22 @@ var MYPDF = (function () {
         }
         doc.setFontSize(7);
         doc.line(20, 288, 190, 288);
-        doc.text("@2016 Thoomic WebApp.", 40, 293);
+        doc.text("@2016 Thoomic.com", 40, 293);
+
+        iva = 0;
+        subtotal = 0;
     }
 
     mypdf.tax = function (data) {
-        if (typeof data === 'number' && data) {
+        if (data) {
             mytax = data;
-            console.log(mytax);
+        } else {
+            mytax = 0;
         }
     };
 
     mypdf.init = function () {
         doc = new jsPDF();
-        mytax = 21;
         x = 20;
         y = 24;
         total = 0;
@@ -60,20 +62,18 @@ var MYPDF = (function () {
         nombre = "client";
         nfac = "0000";
         a = 132;
-
         doc.setTextColor(100);
         doc.setFontType("bold");
     };
 
     mypdf.client = function (data) {
-
         if (data) {
             doc.setFillColor(220, 220, 220);
             doc.rect(120, 52, 64, 17, 'F');
             doc.setFontSize(22);
             doc.text(122, 63, data.name);
             doc.setFontSize(9);
-            doc.text(122, 51, "Bill to: ");
+            doc.text(122, 51, "Invoice to: ");
             doc.text(166, 68, check(data.cif));
             doc.text(122, 75, "Tel: " + check(data.telefono));
             doc.text(122, 80, check(data.email));
@@ -86,25 +86,23 @@ var MYPDF = (function () {
     };
 
     mypdf.setup = function (data) {
-        var n, largo = 0;
+        var n, largo;
 
         if (data) {
             largo = 80;
             doc.rect(x, y, largo, (y + 24), 'F');
             doc.setTextColor(222, 222, 222);
-            doc.setFontSize(28);
-            doc.text(x, 21, check(data[1]));
+            doc.setFontSize(32);
+            doc.text(x, 21, check(data.name));
             x = x + 2;
             y = y + 3;
             doc.setFontSize(9);
 
             for (n in data) {
                 if (data.hasOwnProperty(n)) {
-                    if (data[n]) {
-                        if (n !== "1") {
-                            y = y + 5;
-                            doc.text(x, y, check(data[n]));
-                        }
+                    if (n !== "name") {
+                        y = y + 5;
+                        doc.text(x, y, check(data[n]));
                     }
                 }
             }
@@ -112,26 +110,19 @@ var MYPDF = (function () {
         }
     };
 
-    mypdf.fac = function (data) {
+    mypdf.invoice = function (data) {
         if (data) {
+            nombre = data.titulo;
+
             doc.setFontSize(12);
             doc.setFontType("bold");
-            doc.text(25, 119, "Invoice ID: " + data);
-            nfac = data;
-        }
-    };
+            doc.text(25, 119, "Invoice ID: " + data.name);
+            nfac = data.name;
 
-    mypdf.date = function (data) {
-        if (data) {
             doc.setFontSize(12);
             doc.setFontType("bold");
-            doc.text(168, 119, data);
-        }
-    };
-
-    mypdf.name = function (data) {
-        if (data) {
-            nombre = data;
+            doc.text(168, 119, data.fecha);
+            moneda = data.currency;
         }
     };
 
@@ -160,11 +151,8 @@ var MYPDF = (function () {
 
     mypdf.save = function (data) {
         totales(data);
-
+        console.log("MYPDF.save: " + JSON.stringify(data));
         doc.save(nombre + nfac + '.pdf');
-
-        iva = 0;
-        subtotal = 0;
     };
 
     return mypdf;

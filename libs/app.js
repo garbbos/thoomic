@@ -266,6 +266,7 @@ window.onload = function () {
         btn_delete.text("Delete");
 		titulo.text("New Client");
 		lista.empty();
+        $('#money').show();
 		filter.focus();
 		rotulo.text("Customer database, add new clients.");
 		clientDB = [];
@@ -319,71 +320,6 @@ window.onload = function () {
 		popup_delete.popup('open', { positionTo: "window", transition: "pop" });
 	}
 
-    function reBill(datos) {
-        var id, idfac, suma, res = [], formo = document.getElementById('#form_update'), tax = $('#tax');
-
-        if ((typeof datos === 'string') && (facturas.length < 1)) {
-            $('#textologo').empty();
-			$('#hori').empty();
-			$('<div>').append("<p class='margen' style='color: red;'>There are no invoices in the database, please write them.</p>").appendTo('#textologo');
-			$('#logo').show();
-            newcli();
-        } else {
-            lista.addClass('datos');
-            if (typeof datos !== 'string') {
-                $("<li>").append("<a href='#' id=" + datos.name + "><h3>" + datos.titulo + "</h3><p>Date: " + datos.fecha + "&nbsp;&nbsp;&nbsp;&nbsp;Bill Nº: " + datos.name + "&nbsp;&nbsp;&nbsp;&nbsp;</p></a>").appendTo(lista);
-
-                facturas.push(datos);
-    			id = "#" + datos.name;
-
-                $(id).click(function (event) {
-    				var z, x;
-
-                    MYPDF.init();
-    				openDB.odb.open(cons, datos.titulo, MYPDF.client, 'get');
-    				event.stopPropagation();
-    				listapanel.empty();
-
-                    titulobill.text(datos.titulo);
-                    $('#clave').text(datos.name);
-
-                    texto(JSON.stringify(datos));
-                    $("<li>").append("<a href='#' class='color ui-mini' id='name'>No. " + datos.name + "</a>").appendTo(listapanel);
-                    $("<li class='color ui-mini'>").append("<span>" + datos.fecha + "</span>").appendTo(listapanel);
-                    idfac = "#name";
-
-                    for(z in datos) {
-                        if (datos.hasOwnProperty(z)) {
-                            if ((z !== 'titulo') && (z !== 'name') && (z !== 'fecha') && (z !== 'currency')) {
-                                $("<li class='color ui-mini'>").append("<span>  " + datos[z].cantidad + "</span><span class='cantidad'>&nbsp;" + datos[z].concepto + "</span><span>&nbsp;&nbsp;&nbsp;" + datos[z].precio + " " + datos.currency + "</span>").appendTo(listapanel);
-                                MYPDF.bill(datos[z].concepto, datos[z].cantidad, datos[z].precio);
-                            }
-                        }
-                    }
-
-    				listapanel.listview('refresh');
-    				panel.panel('open');
-                });
-                $(idfac).click(function (event) {
-                    panel.popup('close');
-                });
-
-                $('#btn_generating').click(function (event) {
-                    var mytax = 21;
-                    if (tax.val()) {
-                        mytax = tax.val();
-                    }
-                    localStorage.setItem('tax', mytax);
-                    MYPDF.save($('#comments').val());
-
-                    $('#genpdf').popup('close');
-                });
-
-            lista.listview('refresh');
-        }
-    }
-}
-
 	function refreshBill(datos) {
 		var id, suma, mytax = (localStorage.getItem('tax')|| 21), res = [], formo = document.getElementById('#form_update'), tax = $('#tax');
 
@@ -395,6 +331,7 @@ window.onload = function () {
             newcli();
 		} else {
             lista.addClass('datos');
+            $('#money').hide();
             if(typeof datos !== 'string') {
                 $("<li>").append("<a href='#' id=" + datos.name + "><h3>" + datos.titulo + "</h3><p>Date: " + datos.fecha + "&nbsp;&nbsp;&nbsp;&nbsp;Bill Nº: " + datos.name + "&nbsp;&nbsp;&nbsp;&nbsp;</p></a>").appendTo(lista);
 
@@ -413,6 +350,7 @@ window.onload = function () {
 
                     titulobill.text(datos.titulo);
                     $('#clave').text(datos.name);
+
                     $("<li>").append("<a href='#' class='color ui-mini' id='name'>No. " + datos.name + "</a>").appendTo(listapanel);
                     $("<li class='color ui-mini'>").append("<span>" + datos.fecha + "</span>").appendTo(listapanel);
 
@@ -424,37 +362,30 @@ window.onload = function () {
                             }
                         }
                     }
+                    MYPDF.invoice(datos);
 
     				$('#btn_generating').click(function (event) {
-    					MYPDF.save($('#comments').val());
+                        if (tax.val() < 0) {
+    						mytax = 21;
+    					} else {
+                            mytax = tax.val();
+                        }
+                        localStorage.setItem("tax", mytax);
+                        MYPDF.tax(mytax);
 
+    					MYPDF.save($('#comments').val(), datos.currency);
     					$('#genpdf').popup('close');
     				});
 
     				$('#name').click(function (event) {
     					panel.panel('close');
-                        if (tax.val()) {
-    						mytax = tax.val();
-    					}
-    					MYPDF.name(datos.titulo);
-    					MYPDF.date(datos.fecha);
-    					MYPDF.fac(datos.name);
-
-                        MYPDF.tax(mytax);
 
     					res = getSetup();
-                        texto(JSON.stringify(res));
-
+                        tax.val(mytax);
     					if (res.name) {
     						MYPDF.setup(res);
+
     						$('#comments').val('');
-
-    						if (mytax > 0) {
-    							tax.val(mytax);
-    						} else {
-    							tax.val(21);
-    						}
-
     						$('#genpdf').popup('open', { positionTo: "window", transition: "pop" });
     					} else {
     						texto("Setup is empty, write it!!");
