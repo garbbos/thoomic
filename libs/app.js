@@ -321,7 +321,7 @@ window.onload = function () {
 	}
 
 	function refreshBill(datos) {
-		var id, suma, mytax = (localStorage.getItem('tax')|| 21), res = [], formo = document.getElementById('#form_update'), tax = $('#tax');
+		var id, consbill, mytax = (localStorage.getItem('tax')|| 21), res = [], formo = document.getElementById('#form_update'), tax = $('#tax');
 
 		if ((typeof datos === 'string') && (facturas.length < 1)) {
 			$('#textologo').empty();
@@ -357,7 +357,8 @@ window.onload = function () {
                     for(z in datos) {
                         if (datos.hasOwnProperty(z)) {
                             if ((z !== 'titulo') && (z !== 'name') && (z !== 'fecha') && (z !== 'currency')) {
-                                $("<li class='color ui-mini'>").append("<span>  " + datos[z].cantidad + "</span><span class='cantidad'>&nbsp;" + datos[z].concepto + "</span><span>&nbsp;&nbsp;&nbsp;" + datos[z].precio + " " + datos.currency + "</span>").appendTo(listapanel);
+                                $("<li class='color ui-mini'>").append("<span>" + datos[z].cantidad + "</span><span><b>&nbsp;" + datos[z].concepto + "</b></span>").appendTo(listapanel);
+                                $("<li class='color ui-mini'>").append("<span>Unit: " + datos[z].precio + " " + datos.currency + "</span><span>&nbsp;&nbsp;&nbsp;Subtotal: " + (datos[z].cantidad * datos[z].precio) + " " + datos.currency + "</span>").appendTo(listapanel);
                                 MYPDF.bill(datos[z].concepto, datos[z].cantidad, datos[z].precio);
                             }
                         }
@@ -370,21 +371,22 @@ window.onload = function () {
     					} else {
                             mytax = tax.val();
                         }
-                        localStorage.setItem("tax", mytax);
                         MYPDF.tax(mytax);
 
     					MYPDF.save($('#comments').val(), datos.currency);
+                        datos.comments = $('#comments').val();
+                        consbill = {NAME: datos.name, VERSION: 1}
+                        openDB.odb.open(consbill, datos, texto, 'update');
     					$('#genpdf').popup('close');
     				});
 
     				$('#name').click(function (event) {
     					panel.panel('close');
+                        tax.val(mytax);
 
     					res = getSetup();
-                        tax.val(mytax);
     					if (res.name) {
     						MYPDF.setup(res);
-
     						$('#comments').val('');
     						$('#genpdf').popup('open', { positionTo: "window", transition: "pop" });
     					} else {
@@ -736,5 +738,5 @@ window.onload = function () {
 
     loadEvents();
     loadSetup();
-    timer = setTimeout(loadDB, 6000);
+    timer = setTimeout(loadDB, 4000);
 };

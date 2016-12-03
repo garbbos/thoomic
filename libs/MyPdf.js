@@ -1,13 +1,13 @@
 /*jshint -W055 */
 var MYPDF = (function () {
     'use strict';
-    var doc, mypdf = {}, x, y, total, iva, mytax, subtotal, nombre, nfac, a, moneda;
+    var doc, mypdf = {}, x, y, total, iva, mytax = 0, subtotal, nombre = "client", nfac = "00001", a, moneda = "€";
 
     function check(data) {
         if (data) {
             return data;
         } else {
-            return "";
+            return "----";
         }
     }
 
@@ -59,8 +59,6 @@ var MYPDF = (function () {
         total = 0;
         iva = 0;
         subtotal = 0;
-        nombre = "client";
-        nfac = "0000";
         a = 132;
         doc.setTextColor(100);
         doc.setFontType("bold");
@@ -90,7 +88,7 @@ var MYPDF = (function () {
 
         if (data) {
             largo = 80;
-            doc.rect(x, y, largo, (y + 24), 'F');
+            doc.rect(x, y, largo, (y + 20), 'F');
             doc.setTextColor(222, 222, 222);
             doc.setFontSize(32);
             doc.text(x, 21, check(data.name));
@@ -151,7 +149,6 @@ var MYPDF = (function () {
 
     mypdf.save = function (data) {
         totales(data);
-        console.log("MYPDF.save: " + JSON.stringify(data));
         doc.save(nombre + nfac + '.pdf');
     };
 

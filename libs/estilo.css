@@ -1,5 +1,9 @@
 a:hover{
     cursor:pointer;
+    text-decoration:underline;
+}
+a{
+    text-decoration: none;
 }
 label, input, span{
     font-size: .9em;
@@ -54,7 +58,7 @@ h2{
 .logo{
     padding: 0;
     text-align: center;
-    width: 98%;
+    width: 80%;
     margin: auto;
     border-radius: 6px 6px;
     box-shadow: 4px 4px 10px #888888;
