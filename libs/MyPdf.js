@@ -1,7 +1,7 @@
 /*jshint -W055 */
 var MYPDF = (function () {
     'use strict';
-    var doc, mypdf = {}, x, y, total, iva, mytax = 0, subtotal, nombre = "client", nfac = "00001", a, moneda = "€";
+    var doc, mypdf = {}, x, y, total = 0, iva = 0, mytax = 0, subtotal = 0, nombre = "client", nfac = "00001", a, moneda = "€";
 
     function check(data) {
         if (typeof data === "string" && data.length > 0) {
@@ -54,6 +54,7 @@ var MYPDF = (function () {
 
     mypdf.init = function () {
         doc = new jsPDF();
+
         x = 20;
         y = 24;
         total = 0;

@@ -341,29 +341,25 @@ window.onload = function () {
     			titulobill.text(datos.titulo);
                 $('#clave').text(datos.name);
     			id = "#" + datos.name;
-
+                lista.listview('refresh');
     			$(id).click(function (event) {
     				var x, z;
     				event.stopPropagation();
     				listapanel.empty();
 
     				MYPDF.init();
-                    texto(JSON.stringify(datos));
                     for(z in datos) {
                         if (datos.hasOwnProperty(z)) {
                             switch (z) {
                                 case 'titulo':
-                                    texto(z + " " + datos[z]);
                                     openDB.odb.open(cons, datos[z], MYPDF.client, 'get');
                                     titulobill.text(datos[z]);
                                     break;
                                 case 'name':
-                                texto(z + " " + datos[z]);
                                     $("<li>").append("<a href='#' class='color ui-mini' id='name'>No. " + datos[z] + "</a>").appendTo(listapanel);
                                     $('#clave').text(datos[z]);
                                     break;
                                 case 'fecha':
-                                texto(z + " " + datos[z]);
                                     $("<li class='color ui-mini'>").append("<span>" + datos[z] + "</span>").appendTo(listapanel);
                                     break;
                                 default:
@@ -408,7 +404,6 @@ window.onload = function () {
     				btn_delete.text(datos.name);
     				panel.panel('open');
     			});
-    			lista.listview('refresh');
     		}
         }
 	}
