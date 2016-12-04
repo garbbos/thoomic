@@ -4,7 +4,7 @@ var MYPDF = (function () {
     var doc, mypdf = {}, x, y, total, iva, mytax = 0, subtotal, nombre = "client", nfac = "00001", a, moneda = "€";
 
     function check(data) {
-        if (typeof data === "string" && data.length > 0) {
+        if (data) {
             return data;
         } else {
             return "----";
@@ -45,7 +45,7 @@ var MYPDF = (function () {
     }
 
     mypdf.tax = function (data) {
-        if (data > 0) {
+        if (data) {
             mytax = data;
         } else {
             mytax = 0;
@@ -65,7 +65,7 @@ var MYPDF = (function () {
     };
 
     mypdf.client = function (data) {
-        if (data.name) {
+        if (data) {
             doc.setFillColor(220, 220, 220);
             doc.rect(120, 52, 64, 17, 'F');
             doc.setFontSize(22);
@@ -86,7 +86,7 @@ var MYPDF = (function () {
     mypdf.setup = function (data) {
         var n, largo;
 
-        if (data.name) {
+        if (data) {
             largo = 80;
             doc.rect(x, y, largo, (y + 20), 'F');
             doc.setTextColor(222, 222, 222);
@@ -109,7 +109,7 @@ var MYPDF = (function () {
     };
 
     mypdf.invoice = function (data) {
-        if (data.name) {
+        if (data) {
             nombre = data.titulo;
 
             doc.setFontSize(12);

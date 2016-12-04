@@ -217,7 +217,6 @@ window.onload = function () {
 			lista.removeClass('datos');
 		} else {
 			if (typeof datos !== 'string') {
-                $('#currency').val(localStorage.getItem('currency')).change();
 				clientDB.push(datos);
 				token = datos[empresa[1]].split('.', 1).toString();
 
@@ -226,8 +225,9 @@ window.onload = function () {
 				id = "#" + token;
 				$(id).click(function (event) {
 					event.stopPropagation();
+                    listapanel.empty();
+                    $('#currency option:selected').text(localStorage.getItem('currency')).change();
 
-					listapanel.empty();
 					for (z in datos) {
 						if (datos.hasOwnProperty(z)) {
 							if (datos[z]) {
@@ -262,6 +262,8 @@ window.onload = function () {
 	};
 
     function loadDB() {
+        clearTimeout(timer);
+
 		paneltitulo.text("Thoomic");
         btn_delete.text("Delete");
 		titulo.text("New Client");
@@ -320,17 +322,17 @@ window.onload = function () {
 		popup_delete.popup('open', { positionTo: "window", transition: "pop" });
 	}
 
-	function refreshBill(datos) {
+	function reBill(datos) {
 		var id, consbill, mytax = (localStorage.getItem('tax')|| 21), res = [], formo = document.getElementById('#form_update'), tax = $('#tax');
 
 		if ((typeof datos === 'string') && (facturas.length < 1)) {
+            lista.removeClass('datos');
 			$('#textologo').empty();
 			$('#hori').empty();
 			$('<div>').append("<p class='margen' style='color: red;'>There are no invoices in the database, please write them.</p>").appendTo('#textologo');
 			$('#logo').show();
             newcli();
 		} else {
-            lista.addClass('datos');
             $('#money').hide();
             if(typeof datos !== 'string') {
                 $("<li>").append("<a href='#' id=" + datos.name + "><h3>" + datos.titulo + "</h3><p>Date: " + datos.fecha + "&nbsp;&nbsp;&nbsp;&nbsp;Bill Nº: " + datos.name + "&nbsp;&nbsp;&nbsp;&nbsp;</p></a>").appendTo(lista);
@@ -341,29 +343,38 @@ window.onload = function () {
     			id = "#" + datos.name;
 
     			$(id).click(function (event) {
-    				var z, x;
+    				var x, z;
     				event.stopPropagation();
     				listapanel.empty();
 
     				MYPDF.init();
-    				openDB.odb.open(cons, datos.titulo, MYPDF.client, 'get');
-
-                    titulobill.text(datos.titulo);
-                    $('#clave').text(datos.name);
-
-                    $("<li>").append("<a href='#' class='color ui-mini' id='name'>No. " + datos.name + "</a>").appendTo(listapanel);
-                    $("<li class='color ui-mini'>").append("<span>" + datos.fecha + "</span>").appendTo(listapanel);
-
+                    texto(JSON.stringify(datos));
                     for(z in datos) {
                         if (datos.hasOwnProperty(z)) {
-                            if ((z !== 'titulo') && (z !== 'name') && (z !== 'fecha') && (z !== 'currency')) {
-                                $("<li class='color ui-mini'>").append("<span>" + datos[z].cantidad + "</span><span><b>&nbsp;" + datos[z].concepto + "</b></span>").appendTo(listapanel);
-                                $("<li class='color ui-mini'>").append("<span>Unit: " + datos[z].precio + " " + datos.currency + "</span><span>&nbsp;&nbsp;&nbsp;Subtotal: " + (datos[z].cantidad * datos[z].precio) + " " + datos.currency + "</span>").appendTo(listapanel);
-                                MYPDF.bill(datos[z].concepto, datos[z].cantidad, datos[z].precio);
+                            switch (z) {
+                                case 'titulo':
+                                    texto(z + " " + datos[z]);
+                                    openDB.odb.open(cons, datos[z], MYPDF.client, 'get');
+                                    titulobill.text(datos[z]);
+                                    break;
+                                case 'name':
+                                texto(z + " " + datos[z]);
+                                    $("<li>").append("<a href='#' class='color ui-mini' id='name'>No. " + datos[z] + "</a>").appendTo(listapanel);
+                                    $('#clave').text(datos[z]);
+                                    break;
+                                case 'fecha':
+                                texto(z + " " + datos[z]);
+                                    $("<li class='color ui-mini'>").append("<span>" + datos[z] + "</span>").appendTo(listapanel);
+                                    break;
+                                default:
+                                if ( datos[z].cantidad) {
+                                    $("<li class='color ui-mini'>").append("<span>" + datos[z].cantidad + "</span><span><b>&nbsp;" + datos[z].concepto + "</b></span>").appendTo(listapanel);
+                                    $("<li class='color ui-mini'>").append("<span>Unit: " + datos[z].precio + " " + datos.currency + "</span><span>&nbsp;&nbsp;&nbsp;Subtotal: " + (datos[z].cantidad * datos[z].precio) + " " + datos.currency + "</span>").appendTo(listapanel);
+                                    MYPDF.bill(datos[z].concepto, datos[z].cantidad, datos[z].precio);
+                                }
                             }
                         }
                     }
-                    MYPDF.invoice(datos);
 
     				$('#btn_generating').click(function (event) {
                         if (tax.val() < 0) {
@@ -371,11 +382,11 @@ window.onload = function () {
     					} else {
                             mytax = tax.val();
                         }
+                        localStorage.setItem('tax', mytax);
+                        MYPDF.invoice(datos);
                         MYPDF.tax(mytax);
-
-    					MYPDF.save($('#comments').val(), datos.currency);
-                        datos.comments = $('#comments').val();
-                        consbill = {NAME: datos.name, VERSION: 1}
+    					MYPDF.save($('#comments').val());
+                        consbill = {NAME: datos.name, VERSION: 1};
                         openDB.odb.open(consbill, datos, texto, 'update');
     					$('#genpdf').popup('close');
     				});
@@ -393,9 +404,8 @@ window.onload = function () {
     						texto("Setup is empty, write it!!");
     					}
     				});
-
+                    listapanel.listview('refresh');
     				btn_delete.text(datos.name);
-    				listapanel.listview('refresh');
     				panel.panel('open');
     			});
     			lista.listview('refresh');
@@ -406,12 +416,13 @@ window.onload = function () {
 	function bills(data) {
 		panel.panel('close');
 		lista.empty();
-		lista.removeClass('datos');
+		lista.addClass('datos');
 
 		if (data) {
 			rotulo.text("Invoice to: " + data);
+
 			var consbill = {NAME: data, VERSION: 1};
-			openDB.odb.open(consbill, null, refreshBill, 'read');
+			openDB.odb.open(consbill, null, reBill, 'read');
 			paneltitulo.text(data);
             facturas = [];
 		}
@@ -466,9 +477,7 @@ window.onload = function () {
 		fac.titulo = titulobill.text();
 		fac.name = numerobill.text() + fac.titulo.substring(0, 1);
 		fac.fecha = fechabill.text();
-        fac.currency = $('#currency option:selected').text();
-        localStorage.setItem("currency", $('#currency option:selected').val());
-        texto(fac.currency);
+        fac.currency = localStorage.getItem("currency");
 
 		if (nextbill()) {
 			for (z in vector) {
@@ -548,7 +557,6 @@ window.onload = function () {
 					for (z in objeto) {
 						if (objeto.hasOwnProperty(z)) {
 							localStorage.setItem(z, objeto[z]);
-							texto(objeto[z]);
 						}
 					}
 					carga(objeto);
@@ -638,6 +646,9 @@ window.onload = function () {
 			default:
 		}
 	}
+    function saveCurrency(event) {
+        localStorage.setItem("currency", $('#currency option:selected').text());
+    }
 	function changed(event) {
 		switch (event.keyCode) {
 			case 17:
@@ -671,9 +682,6 @@ window.onload = function () {
 			saveLocation();
 		});
 		btn_reload.click(function () {
-			if(timer) {
-				clearTimeout(timer);
-			}
 			loadDB();
 		});
 
@@ -711,6 +719,7 @@ window.onload = function () {
 
         filter.addEventListener('keyup', changed, true);
 
+        currency.addEventListener('change', saveCurrency, false);
 		document.getElementById('selectfile').addEventListener('change', importData, false);
 		document.getElementById('nuevo_cliente').addEventListener('keyup', function(event) {
             switch (event.keyCode) {
@@ -735,8 +744,7 @@ window.onload = function () {
             }
 		});
 	}
-
+    timer = setTimeout(loadDB, 4000);
     loadEvents();
     loadSetup();
-    timer = setTimeout(loadDB, 4000);
 };
