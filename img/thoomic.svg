@@ -1,5 +1,5 @@
-<svg viewBox="0 0 340 140" height="140" width="340" xmlns="http://www.w3.org/2000/svg" version="1.1">
-    <title>Logo, Name and help for button in application</title>
+<svg viewBox="0 0 320 140" height="140" width="320" xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <title>Logo, Name and application help Thoomic Invoices</title>
     <g stroke="#474747" stroke-width="3" fill="#ffdf4a">
         <circle cx="50" cy="50" r="41"/>
         <circle cx="50" cy="70" r="20"/>
@@ -11,7 +11,7 @@
         <line x1="85" y1="5" x2="95" y2="35"/>
         <path d="M10 20 C 15 70, 50 65, 40 5"/>
         <line x1="10" y1="20" x2="40" y2="5"/>
-        <text x="120" y="60" font-family="Trebuchet" font-size="44" stroke-width="2">Thoomic</text>
-        <text x="120" y="120" font-family="Trebuchet" font-size="44" stroke-width="2"> Invoices</text>
+        <text x="120" y="60" font-family="Trebuchet" font-size="38" stroke-width="2">Thoomic</text>
+        <text x="120" y="120" font-family="Trebuchet" font-size="38" stroke-width="2"> Invoices</text>
     </g>
 </svg>

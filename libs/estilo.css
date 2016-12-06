@@ -59,10 +59,12 @@ h2{
 .logo{
     padding: 0;
     text-align: center;
-    width: 80%;
+    font-size: .8em;
+    width: 100%;
     margin: auto;
     border-radius: 6px 6px;
     box-shadow: 4px 4px 10px #888888;
+    word-wrap: break-word;
 }
 .status {
     bottom: 4%;
