@@ -8,18 +8,18 @@
     <script type="text/javascript" src="libs/jquery.min.js"></script>
     <script type="text/javascript" src="libs/jquery.mobile.min.js"></script>
     <link rel="stylesheet" type="text/css" href="libs/jquery.mobile-1.4.5.min.css">
-    <link rel="stylesheet" type="text/css" href="libs/estilo.min.css">
-    <script type="text/javascript" src="libs/app.min.js" defer></script>
-    <script type="text/javascript" src="libs/openDB.min.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="libs/estilo.css">
+    <script type="text/javascript" src="libs/app.js" defer></script>
+    <script type="text/javascript" src="libs/openDB.js" defer></script>
     <script type="application/javascript" src="libs/FileSaver.min.js" defer></script>
     <script type="text/javascript" src="libs/jspdf.js" defer></script>
     <script src="libs/jspdf.plugin.standard_fonts_metrics.js" defer></script>
-    <script type="text/javascript" src="libs/MyPdf.min.js" defer></script>
+    <script type="text/javascript" src="libs/MyPdf.js" defer></script>
     <link rel="icon" type="image/png" href="img/favicon.ico">
 </head>
 <body>
     <div data-role="page" data-theme="a" id="app">
-        <div data-role="header" class="ui-shadow color">
+        <div data-role="header" data-position="fixed" class="ui-shadow color">
             <div data-role="navbar">
                     <ul>
                         <li><a href="#" id="menu" class="color">
@@ -69,11 +69,14 @@
             <div class="rotulo">
                 <h1 id="rotulo" class="margen">Make your Invoices & Export to PDF!!</h1>
             </div>
-            <form class="ui-filterable">
-                <input id="myFilter" data-type="search" placeholder="Search...">
-            </form>
-            <ul id="lista" class="lista" data-role="listview" data-filter="true" data-input="#myFilter" data-inset="true">
-            </ul>
+            <div class="listadiv" id="listadiv">
+                <form class="ui-filterable">
+                    <input id="myFilter" data-type="search" placeholder="Search...">
+                </form>
+                <ul id="lista" class="lista" data-role="listview" data-filter="true" data-input="#myFilter" data-inset="true">
+                </ul>
+            </div>
+
             <div class="logo datos" id="logo">
                 <img src="img/thoomic.svg" alt="Logo Thoomic.com"/>
                 <div id="textologo" style="text-align: left;"><h3>&nbsp;&nbsp;&#34;&#43;&#34;&nbsp;&nbsp;Save new customer data.</h3><h3>&nbsp;&nbsp;&#34;&#92;&#34;&nbsp;&nbsp;Update your company details.</h3></div>
@@ -155,7 +158,7 @@
             <h4 id="clave"></h4>
             <a href="#" id="btn_popup_delete" data-rel="back" class="ui-btn ui-mini ui-corner-all ui-icon-alert ui-btn-icon-left ui-shadow color">Are you sure?</a>
         </div>
-        <div data-role="panel" data-theme="o" data-display="overlay" id="panel" class="ui-content color">
+        <div data-role="panel" data-theme="o" data-display="overlay" data-position-fixed="true" id="panel" class="ui-content color panel">
             <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-icon-delete ui-btn-icon-notext ui-btn-right color"></a>
             <h2 id="panel_titulo">Thoomic</h2>
              <div id="data" class="data">
@@ -182,5 +185,6 @@
              </div>
         </div>
     </div>
+
 </body>
 </html>

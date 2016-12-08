@@ -257,7 +257,9 @@ window.onload = function () {
 	};
 
     function loadDB() {
-        clearTimeout(timer);
+        if (timer) {
+            clearTimeout(timer);
+        }
 
 		paneltitulo.text("Thoomic");
         btn_delete.text("Delete");
@@ -334,7 +336,7 @@ window.onload = function () {
 		var id, consbill, mytax = (localStorage.getItem('tax')|| 21), res = {}, tax = $('#tax');
 
         if ( typeof datos !== 'string') {
-            $("<li>").append("<a href='#' id=" + datos.name + "><h3>" + datos.titulo + "</h3><p>Date: " + datos.fecha + "&nbsp;&nbsp;&nbsp;&nbsp;Bill Nº: " + datos.name + "&nbsp;&nbsp;&nbsp;&nbsp;</p></a>").appendTo(lista);
+            $("<li>").append("<a href='#' id=" + datos.name + "><h3>" + datos.titulo + "</h3><p>Date: " + datos.fecha + "&nbsp;&nbsp;&nbsp;&nbsp;Bill Nº: " + datos.name + "&nbsp;&nbsp;&nbsp;&nbsp; " + datos.concepto0.concepto + "</p></a>").appendTo(lista);
 
             facturas.push(datos);
             titulobill.text(datos.titulo);
@@ -749,4 +751,5 @@ window.onload = function () {
     timer = setTimeout(loadDB, 4000);
     loadEvents();
     loadSetup();
+    $('#principal').height(screen.availHeight);
 };
