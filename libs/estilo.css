@@ -36,14 +36,14 @@ h2{
 .color{
     background: linear-gradient(#ff8c00, #ffa500);
 }
-body{
-    overflow: hidden;
-}
 .principal{
-    overflow: auto;
+    overflow: hidden;
 }
 .panel{
     overflow: hidden;
+}
+.listadiv{
+    margin-bottom: 2%;
 }
 .ui-bar-a{ font-size: 1.6em; }
 .ui-body-g{ background-color: #676767; color: #eefeff; }

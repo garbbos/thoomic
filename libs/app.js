@@ -1,6 +1,5 @@
 /* jslint browser: true */
 /* global $, openDB, saveAs, MYPDF, Blob, FileReader */
-
 window.onload = function () {
     'use strict';
 	var	cons = {NAME: "ThoomicDB", VERSION: 1},
@@ -751,5 +750,5 @@ window.onload = function () {
     timer = setTimeout(loadDB, 4000);
     loadEvents();
     loadSetup();
-    $('#principal').height(screen.availHeight);
+    $('#app').height(screen.availHeight - 100);
 };
