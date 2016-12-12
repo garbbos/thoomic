@@ -266,7 +266,7 @@ window.onload = function () {
         lista.empty();
         $('#money').show();
 		filter.focus();
-		rotulo.text("Customer database, add new clients.");
+		rotulo.text("Add new clients.");
 		clientDB = [];
 		openDB.odb.open(cons, "", reclients, 'read');
 	}
@@ -676,12 +676,21 @@ window.onload = function () {
 		btn_reload.click(function () {
 			loadDB();
 		});
-
+        btn_reload.hover(function () {
+			rotulo.text("Reload customer database.");
+		});
+        btn_reload.focus(function () {
+			rotulo.text("Reload customer database.");
+		});
 		btn_export.click(function () {
             openDB.odb.open(cons, "", exportall, 'read');
-
 		});
-
+        btn_export.hover(function () {
+            rotulo.text("Export your customer database to json file.");
+        });
+        btn_export.focus(function () {
+            rotulo.text("Export your customer database to json file.");
+        });
 		btn_nuevo.click(function () {
 			newcli();
 		});
@@ -693,7 +702,12 @@ window.onload = function () {
 		btn_delete.click(function () {
 			deleteID();
 		});
-
+        $('#imfile').hover(function () {
+			rotulo.text("Import customer database.")
+		});
+        $('#imfile').focus(function () {
+			rotulo.text("Import customer database.")
+		});
 		btn_save_bill.click(function () {
 			saveallbill();
 		});
@@ -708,7 +722,12 @@ window.onload = function () {
 		btn_menu.click(function() {
 			mysetup();
 		});
-
+        btn_menu.focus(function() {
+			rotulo.text("Write your data.")
+		});
+        btn_menu.hover(function() {
+			rotulo.text("Write your data.")
+		});
         filter.addEventListener('keyup', changed, true);
 
         currency.addEventListener('change', saveCurrency, false);
